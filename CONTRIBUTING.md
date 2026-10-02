@@ -11,12 +11,12 @@ The maintainer keeps the two in sync. You may be reading this file from either o
 
 ## Where things go
 
-| I want to...                         | Do this                                                                                                                                                                                                                                                                                 |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I want to...                         | Do this                                                                                                                                                                                                                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Report a bug                         | Open an issue in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control/issues)                                                                                                                                                 |
 | Propose a feature or discuss an idea | Open an issue in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control/issues) before writing code                                                                                                                             |
 | Submit code                          | Open a pull request in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control) **or** directly in the [Raycast extensions repository](https://github.com/raycast/extensions). Both are fine. See [Sending code](#sending-code). |
-| Report a CLI or hardware problem     | Open an issue in the [pods-control CLI repository](https://github.com/raulgg/airpods-control/issues). The Pods Control Raycast extension only runs the CLI. The CLI binary is still `airpods-control` until that project is renamed.                                                                                                                       |
+| Report a CLI or hardware problem     | Open an issue in the [pods-control CLI repository](https://github.com/raulgg/pods-control/issues). The Pods Control Raycast extension only runs the CLI.                                                                                                                          |
 
 > **Status.** The Pods Control Raycast extension is not in the Raycast Store yet, so there is no `extensions/pods-control` directory in the Raycast extensions repository for now. Until the first release lands, everything goes through the Pods Control Raycast extension repository.
 
@@ -24,7 +24,7 @@ The maintainer keeps the two in sync. You may be reading this file from either o
 
 Please open an issue in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control/issues) before building a new feature or changing behavior. Small bug fixes do not need one.
 
-Why: Raycast will not merge significant changes to an extension without the author's sign-off, so agreeing on the idea first means your pull request will not stall in review. It also settles whether the change belongs in the extension or in the [pods-control CLI](https://github.com/raulgg/airpods-control), and lets the maintainer point you at the relevant notes in [ARCHITECTURE.md](ARCHITECTURE.md) and [TESTING.md](TESTING.md) before you start.
+Why: Raycast will not merge significant changes to an extension without the author's sign-off, so agreeing on the idea first means your pull request will not stall in review. It also settles whether the change belongs in the extension or in the [pods-control CLI](https://github.com/raulgg/pods-control), and lets the maintainer point you at the relevant notes in [ARCHITECTURE.md](ARCHITECTURE.md) and [TESTING.md](TESTING.md) before you start.
 
 You can also open issues in the Raycast extensions repository (Raycast labels them per extension), but the Pods Control Raycast extension repository is preferred so discussions stay in one place.
 
@@ -38,7 +38,7 @@ You are not required to open your pull request in the Pods Control Raycast exten
 
 In both repositories:
 
-- `npm run dev` loads the Pods Control Raycast extension into Raycast from the directory you run it in and reloads on changes. You need macOS, Raycast, and the [pods-control CLI](https://github.com/raulgg/airpods-control) (binary still `airpods-control`) installed to exercise the commands end to end.
+- `npm run dev` loads the Pods Control Raycast extension into Raycast from the directory you run it in and reloads on changes. You need macOS, Raycast, and the [pods-control CLI](https://github.com/raulgg/pods-control) installed to exercise the commands end to end.
 - Read [ARCHITECTURE.md](ARCHITECTURE.md) for the module map, dependency rules, and the behavior contracts a change must preserve, and [TESTING.md](TESTING.md) for the test projects, conventions, and what each suite can prove. Both files ship alongside this one in either repository.
 - Update [CHANGELOG.md](CHANGELOG.md) with a `## [Title] - {PR_MERGE_DATE}` entry. Raycast fills in the date on release.
 - Add your Raycast Store handle to `contributors` in `package.json`. This is the credit shown on the Store page, and it makes you a code owner for future changes.
@@ -64,7 +64,7 @@ For the maintainer, and for anyone curious why both paths are safe.
 
 ## Ground rules
 
-- The Pods Control Raycast extension runs the pods-control CLI (binary still `airpods-control` until the CLI rename) and reads back macOS state. Anything that needs a new CLI capability starts in the [pods-control CLI repository](https://github.com/raulgg/airpods-control).
+- The Pods Control Raycast extension runs the pods-control CLI and reads back macOS state. Anything that needs a new CLI capability starts in the [pods-control CLI repository](https://github.com/raulgg/pods-control).
 - Keep command names, entrypoint filenames, and preference keys stable; users have shortcuts and settings bound to them.
 - Raycast's [Store guidelines](https://developers.raycast.com/basics/prepare-an-extension-for-store) and [Community Guidelines](https://manual.raycast.com/community-guidelines) apply to every change, in either repository.
 

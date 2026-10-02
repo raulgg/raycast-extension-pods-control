@@ -21,7 +21,7 @@ test("returns the GitHub tag when the latest release is available", async () => 
   // Then
   expect(result).toEqual({ version: "0.5.0", source: "github", liveCheckFailed: false });
   expect(fetchMock).toHaveBeenCalledWith(
-    "https://api.github.com/repos/raulgg/airpods-control/releases/latest",
+    "https://api.github.com/repos/raulgg/pods-control/releases/latest",
     expect.objectContaining({
       signal: expect.any(AbortSignal),
       headers: expect.objectContaining({

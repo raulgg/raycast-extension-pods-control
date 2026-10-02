@@ -57,7 +57,7 @@ test("throws a not-installed CliError when the binary is missing", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockInstalledAt();
   // When
   const result = runCli(["listening-mode", "get"]);
@@ -74,13 +74,13 @@ test("runs the binary with --json appended and return the parsed payload", async
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockExecFileResult(null, '{"device":"My AirPods Pro","listeningMode":"transparency","result":"ok"}');
   // When
   const payload = await runCli(["listening-mode", "get"]);
   // Then
   expect(mockExecFile).toHaveBeenCalledWith(
-    "/opt/homebrew/bin/airpods-control",
+    "/opt/homebrew/bin/pods-control",
     ["listening-mode", "get", "--json"],
     expect.objectContaining({ encoding: "utf-8" }),
     expect.any(Function),
@@ -93,7 +93,7 @@ test("maps the payload error identifier when the CLI exits non-zero", async () =
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
   error.code = 4;
   mockExecFileResult(error, '{"device":"Sony","error":"unsupported","listeningMode":null,"result":"error"}');
@@ -114,7 +114,7 @@ test.each([["read-error"], ["unavailable"], ["ambiguous-device"]] as const)(
     mockGetPreferenceValues.mockReturnValue({} as never);
     mockStatSync.mockReturnValue({ isFile: () => true } as never);
     mockInstalledAt();
-    mockInstalledAt("/opt/homebrew/bin/airpods-control");
+    mockInstalledAt("/opt/homebrew/bin/pods-control");
     const error = new Error("Command failed") as Error & { code?: number };
     error.code = 70;
     mockExecFileResult(error, JSON.stringify({ device: null, error: code, result: "error" }));
@@ -139,7 +139,7 @@ test.each([
     mockGetPreferenceValues.mockReturnValue({} as never);
     mockStatSync.mockReturnValue({ isFile: () => true } as never);
     mockInstalledAt();
-    mockInstalledAt("/opt/homebrew/bin/airpods-control");
+    mockInstalledAt("/opt/homebrew/bin/pods-control");
     const error = new Error("Command failed") as Error & { code?: number };
     error.code = exitCode;
     mockExecFileResult(error, "");
@@ -158,7 +158,7 @@ test("maps a no-op result payload without an error token", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
   error.code = 3;
   mockExecFileResult(
@@ -180,7 +180,7 @@ test("maps a no-op result payload after a zero exit code", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockExecFileResult(
     null,
     JSON.stringify({ device: "My AirPods Pro", listeningMode: "transparency", result: "no-op" }),
@@ -200,7 +200,7 @@ test("rejects non-empty malformed JSON before interpreting an exit code", async 
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
   error.code = 1;
   mockExecFileResult(error, "not json");
@@ -218,7 +218,7 @@ test("throws an unknown CliError for undocumented exit codes", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
   error.code = 70;
   mockExecFileResult(error, "");
@@ -236,7 +236,7 @@ test("distinguishes an externally killed process from a timeout", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { killed?: boolean; signal?: string };
   error.killed = true;
   error.signal = "SIGKILL";
@@ -256,7 +256,7 @@ test("distinguishes max-buffer failures from timeouts and killed processes", asy
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("stdout maxBuffer length exceeded") as Error & { code?: string };
   error.code = "ERR_CHILD_PROCESS_STDIO_MAXBUFFER";
   mockExecFileResult(error, "", "helper output was truncated");
@@ -275,7 +275,7 @@ test("reports a timeout separately from a killed process", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   vi.useFakeTimers();
   try {
     let callback: ExecCallback | undefined;
@@ -305,7 +305,7 @@ test("preserves a valid interrupted payload and its signal", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command interrupted") as Error & { code?: number };
   error.code = 130;
   mockExecFileResult(error, JSON.stringify({ result: "interrupted", signal: 2 }), "interrupted by helper");
@@ -324,7 +324,7 @@ test("rejects a malformed successful envelope instead of classifying it as unsup
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockExecFileResult(null, JSON.stringify({ result: "ok", device: "AirPods" }));
   // When
   const result = runCli(["conversation-awareness", "get"]);
@@ -339,7 +339,7 @@ test("rejects malformed known field shapes", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockExecFileResult(
     null,
     JSON.stringify({ result: "ok", device: "AirPods", listeningMode: { mode: "transparency" } }),
@@ -355,7 +355,7 @@ test("throws when the payload reports an error despite a zero exit code", async 
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   mockExecFileResult(null, '{"device":null,"error":"no-device","listeningMode":null,"result":"error"}');
   // When
   const result = runCli(["listening-mode", "get"]);
@@ -371,7 +371,7 @@ test("exposes CliError instances with human-readable messages", async () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
   error.code = 1;
   mockExecFileResult(error, '{"device":null,"error":"no-device","listeningMode":null,"result":"error"}');

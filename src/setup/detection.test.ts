@@ -81,8 +81,8 @@ test("detects a Homebrew CLI through symlinks, including a configured path", asy
   vi.mocked(realpathSync).mockImplementation((path) => String(path));
   vi.mocked(findCliPath).mockReturnValue("/custom/cli");
   vi.mocked(getConfiguredCliPath).mockReturnValue("/custom/cli");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
   // When
   const result = (await detectCliSetup()).state;
   // Then
@@ -97,7 +97,7 @@ test("does not upgrade a source CLI just because Homebrew is available", async (
   vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
   vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   // When
   const result = (await detectCliSetup()).state;
   // Then
@@ -113,7 +113,7 @@ test("does not update an unrelated Homebrew CLI when a custom binary is active",
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
   vi.mocked(realpathSync).mockImplementation((path) => String(path));
   vi.mocked(findCliPath).mockReturnValue("/custom/cli");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   // When
   const result = (await detectCliSetup()).state;
   // Then
@@ -146,14 +146,14 @@ test.each([
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
   vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
-  vi.mocked(findBrewPrefixCli).mockReturnValue("/opt/homebrew/opt/airpods-control/bin/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
+  vi.mocked(findBrewPrefixCli).mockReturnValue("/opt/homebrew/opt/pods-control/bin/pods-control");
   vi.mocked(findBrewLinkedKeg).mockResolvedValue(linked);
   // When
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({ state: "needs-link", brewLinked: linked });
-  expect(findBrewPrefixCli).toHaveBeenCalledWith("/opt/homebrew/opt/airpods-control");
+  expect(findBrewPrefixCli).toHaveBeenCalledWith("/opt/homebrew/opt/pods-control");
 });
 
 test("asks for a reinstall when the Homebrew keg has no usable CLI", async () => {
@@ -163,7 +163,7 @@ test("asks for a reinstall when the Homebrew keg has no usable CLI", async () =>
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
   vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(findBrewPrefixCli).mockReturnValue(null);
   // When
   const result = await detectCliSetup();
@@ -245,22 +245,22 @@ test("does not query helper versions when the CLI still needs installation", asy
 
 test("reports a Homebrew helper as up to date when it matches the tap version", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
-  vi.mocked(readInstalledVersion).mockResolvedValue("0.4.0");
-  vi.mocked(findBrewLatestVersion).mockResolvedValue("0.4.0");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
+  vi.mocked(findBrewLatestVersion).mockResolvedValue("0.5.0");
   // When
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
     state: "update",
     installationMethod: "homebrew",
-    installedVersion: "0.4.0",
-    latestVersion: "0.4.0",
+    installedVersion: "0.5.0",
+    latestVersion: "0.5.0",
     latestSource: "homebrew",
     liveCheckFailed: false,
     versionStatus: "up-to-date",
@@ -273,14 +273,14 @@ test("reports a Homebrew helper as up to date when it matches the tap version", 
 
 test("reports a Homebrew helper update when the installed version is older than the tap", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
   vi.mocked(readInstalledVersion).mockResolvedValue("0.3.0");
-  vi.mocked(findBrewLatestVersion).mockResolvedValue("0.4.0");
+  vi.mocked(findBrewLatestVersion).mockResolvedValue("0.5.0");
   // When
   const result = await detectCliSetup();
   // Then
@@ -288,7 +288,7 @@ test("reports a Homebrew helper update when the installed version is older than 
     state: "update",
     installationMethod: "homebrew",
     installedVersion: "0.3.0",
-    latestVersion: "0.4.0",
+    latestVersion: "0.5.0",
     latestSource: "homebrew",
     versionStatus: "update-available",
     meetsMinimum: false,
@@ -297,20 +297,20 @@ test("reports a Homebrew helper update when the installed version is older than 
 
 test("leaves latest unknown when brew info fails for a Homebrew helper", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
-  vi.mocked(readInstalledVersion).mockResolvedValue("0.4.0");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue(null);
   // When
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
     state: "update",
-    installedVersion: "0.4.0",
+    installedVersion: "0.5.0",
     latestVersion: null,
     latestSource: null,
     liveCheckFailed: true,
@@ -321,20 +321,20 @@ test("leaves latest unknown when brew info fails for a Homebrew helper", async (
 
 test("leaves latest unknown when the Homebrew latest check rejects", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
-  vi.mocked(readInstalledVersion).mockResolvedValue("0.4.0");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(findBrewLatestVersion).mockRejectedValue(new Error("brew info failed"));
   // When
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
     state: "update",
-    installedVersion: "0.4.0",
+    installedVersion: "0.5.0",
     latestVersion: null,
     latestSource: null,
     liveCheckFailed: true,
@@ -345,12 +345,12 @@ test("leaves latest unknown when the Homebrew latest check rejects", async () =>
 
 test("treats a stale tap that matches an old install as up to date and below the minimum", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.3.0/bin/airpods-control");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.3.0/bin/pods-control");
   vi.mocked(readInstalledVersion).mockResolvedValue("0.3.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.3.0");
   // When
@@ -369,13 +369,13 @@ test("treats a stale tap that matches an old install as up to date and below the
 
 test("reports a manual helper as up to date when it matches the GitHub release", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue(null);
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(readInstalledVersion).mockResolvedValue("0.4.0");
+  vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
-    version: "0.4.0",
+    version: "0.5.0",
     source: "github",
     liveCheckFailed: false,
   });
@@ -385,8 +385,8 @@ test("reports a manual helper as up to date when it matches the GitHub release",
   expect(result).toMatchObject({
     state: "manual-cli",
     installationMethod: "manual",
-    installedVersion: "0.4.0",
-    latestVersion: "0.4.0",
+    installedVersion: "0.5.0",
+    latestVersion: "0.5.0",
     latestSource: "github",
     liveCheckFailed: false,
     versionStatus: "up-to-date",
@@ -397,7 +397,7 @@ test("reports a manual helper as up to date when it matches the GitHub release",
 
 test("reports a manual helper update when GitHub has a newer release", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
   vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
@@ -425,11 +425,11 @@ test("reports a manual helper update when GitHub has a newer release", async () 
 
 test("leaves latest unknown when the GitHub latest-release check fails", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue(null);
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(readInstalledVersion).mockResolvedValue("0.4.0");
+  vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
     version: null,
     source: null,
@@ -440,7 +440,7 @@ test("leaves latest unknown when the GitHub latest-release check fails", async (
   // Then
   expect(result).toMatchObject({
     state: "manual-cli",
-    installedVersion: "0.4.0",
+    installedVersion: "0.5.0",
     latestVersion: null,
     latestSource: null,
     liveCheckFailed: true,
@@ -451,7 +451,7 @@ test("leaves latest unknown when the GitHub latest-release check fails", async (
 
 test("treats a helper newer than the live GitHub release as up to date", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue(null);
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
@@ -476,12 +476,12 @@ test("treats a helper newer than the live GitHub release as up to date", async (
 
 test("keeps the Homebrew helper state when the version command fails", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/airpods-control");
+  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
   vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/airpods-control");
+  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
   vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/airpods-control/0.4.0/bin/airpods-control");
+  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
   vi.mocked(readInstalledVersion).mockResolvedValue(null);
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.4.0");
   // When

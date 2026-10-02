@@ -106,12 +106,12 @@ test("reads the installed version from JSON output", async () => {
   // Given
   mockExecSequence([{ error: null, stdout: '{"result":"ok","version":"v0.4.0"}' }]);
   // When
-  const result = await readInstalledVersion("/opt/homebrew/bin/airpods-control");
+  const result = await readInstalledVersion("/opt/homebrew/bin/pods-control");
   // Then
   expect(result).toBe("0.4.0");
   expect(mockExecFile).toHaveBeenCalledTimes(1);
   expect(mockExecFile).toHaveBeenCalledWith(
-    "/opt/homebrew/bin/airpods-control",
+    "/opt/homebrew/bin/pods-control",
     ["--version", "--json"],
     expect.objectContaining({ timeout: 5000, maxBuffer: 4096 }),
     expect.any(Function),
@@ -122,15 +122,15 @@ test("falls back to plain --version when JSON output is unusable", async () => {
   // Given
   mockExecSequence([
     { error: null, stdout: '{"result":"ok"}' },
-    { error: null, stdout: "airpods-control 0.3.1\n" },
+    { error: null, stdout: "pods-control 0.3.1\n" },
   ]);
   // When
-  const result = await readInstalledVersion("/usr/local/bin/airpods-control");
+  const result = await readInstalledVersion("/usr/local/bin/pods-control");
   // Then
   expect(result).toBe("0.3.1");
   expect(mockExecFile).toHaveBeenNthCalledWith(
     2,
-    "/usr/local/bin/airpods-control",
+    "/usr/local/bin/pods-control",
     ["--version"],
     expect.anything(),
     expect.any(Function),
@@ -144,7 +144,7 @@ test("returns null when JSON and plain version commands both fail", async () => 
     { error: null, stdout: "not a version" },
   ]);
   // When
-  const result = await readInstalledVersion("/opt/homebrew/bin/airpods-control");
+  const result = await readInstalledVersion("/opt/homebrew/bin/pods-control");
   // Then
   expect(result).toBeNull();
 });

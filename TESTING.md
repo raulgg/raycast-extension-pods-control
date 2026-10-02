@@ -15,13 +15,13 @@ test("returns the Homebrew path when the binary is there", () => {
   // Given
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt("/opt/homebrew/bin/airpods-control", "/usr/local/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control");
 
   // When
   const result = findCliPath();
 
   // Then
-  expect(result).toBe("/opt/homebrew/bin/airpods-control");
+  expect(result).toBe("/opt/homebrew/bin/pods-control");
 });
 ```
 
