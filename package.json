@@ -44,7 +44,8 @@
         "pods",
         "control",
         "anc",
-        "canceling",
+        "nc",
+        "lm",
         "noise cancelling"
       ]
     },
@@ -63,7 +64,9 @@
         "pods",
         "control",
         "ambient",
-        "passthrough"
+        "passthrough",
+        "trans",
+        "lm"
       ]
     },
     {
@@ -80,7 +83,10 @@
         "beats",
         "pods",
         "control",
-        "adaptive audio"
+        "adaptive audio",
+        "auto",
+        "automatic",
+        "lm"
       ],
       "disabledByDefault": true
     },
@@ -98,7 +104,8 @@
         "beats",
         "pods",
         "control",
-        "disable"
+        "disable",
+        "lm"
       ],
       "disabledByDefault": true
     },
@@ -116,14 +123,10 @@
         "beats",
         "pods",
         "control",
-        "switch",
-        "toggle",
+        "lm",
         "anc",
-        "noise cancellation",
-        "noise cancelling",
-        "transparency",
-        "adaptive",
-        "off"
+        "nc",
+        "trans"
       ],
       "preferences": [
         {
@@ -176,9 +179,9 @@
         "pods",
         "control",
         "speech",
-        "talk",
         "switch",
-        "conversational awareness"
+        "conversational awareness",
+        "ca"
       ]
     },
     {
@@ -196,13 +199,10 @@
         "beats",
         "pods",
         "control",
-        "anc",
-        "noise cancellation",
-        "noise cancelling",
-        "transparency",
-        "adaptive",
+        "listening mode",
+        "lm",
         "conversation awareness",
-        "listening mode"
+        "ca"
       ]
     },
     {
@@ -217,12 +217,8 @@
         "pods control",
         "airpods",
         "beats",
-        "pods",
-        "control",
-        "cli",
         "install",
         "update",
-        "upgrade",
         "setup",
         "fix",
         "homebrew",
