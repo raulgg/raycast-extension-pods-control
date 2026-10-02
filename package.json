@@ -154,7 +154,7 @@
     {
       "name": "pods-status",
       "title": "Pods Status",
-      "description": "Read the combined status, Listening Mode, and Conversation Awareness subtitles now and about once a minute while Background Refresh is active. If deactivated, the last confirmed values remain visible until another status or control command.",
+      "description": "Refresh the listening mode and Conversation Awareness shown in command subtitles.",
       "mode": "no-view",
       "interval": "1m",
       "keywords": [
