@@ -36,8 +36,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "anc",
         "canceling",
         "noise cancelling"
@@ -50,8 +55,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "ambient",
         "passthrough"
       ]
@@ -63,8 +73,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "adaptive audio"
       ],
       "disabledByDefault": true
@@ -76,8 +91,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "disable"
       ],
       "disabledByDefault": true
@@ -89,8 +109,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "switch",
         "toggle",
         "anc",
@@ -143,8 +168,13 @@
       "mode": "no-view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "speech",
         "talk",
         "switch",
@@ -159,8 +189,13 @@
       "interval": "1m",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
         "beats",
+        "pods",
+        "control",
         "anc",
         "noise cancellation",
         "noise cancelling",
@@ -177,7 +212,13 @@
       "mode": "view",
       "keywords": [
         "pods-control",
+        "airpods control",
+        "beats control",
+        "pods control",
         "airpods",
+        "beats",
+        "pods",
+        "control",
         "cli",
         "install",
         "update",
