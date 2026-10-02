@@ -13,6 +13,7 @@
     "Media"
   ],
   "keywords": [
+    "pods-control",
     "airpods",
     "beats",
     "pods",
@@ -20,7 +21,10 @@
     "noise cancellation",
     "transparency",
     "adaptive",
-    "conversation awareness"
+    "conversation awareness",
+    "noise cancelling",
+    "adaptive audio",
+    "conversational awareness"
   ],
   "license": "MIT",
   "type": "module",
@@ -31,11 +35,12 @@
       "description": "Set the connected AirPods or Beats to Noise Cancellation (ANC) listening mode.",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
         "anc",
         "canceling",
-        "isolation"
+        "noise cancelling"
       ]
     },
     {
@@ -44,6 +49,7 @@
       "description": "Set the connected AirPods or Beats to Transparency listening mode.",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
         "ambient",
@@ -56,10 +62,10 @@
       "description": "Set the connected AirPods or Beats to Adaptive listening mode when the device supports it.",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
-        "automatic",
-        "audio"
+        "adaptive audio"
       ],
       "disabledByDefault": true
     },
@@ -69,11 +75,10 @@
       "description": "Set the connected AirPods or Beats to the Off listening mode (no Noise Cancellation or Transparency).",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
-        "disable",
-        "noise",
-        "control"
+        "disable"
       ],
       "disabledByDefault": true
     },
@@ -83,10 +88,17 @@
       "description": "Cycle through your preferred listening modes. The current mode is read from the connected AirPods or Beats before cycling, and unsupported modes are skipped.",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
         "switch",
-        "toggle"
+        "toggle",
+        "anc",
+        "noise cancellation",
+        "noise cancelling",
+        "transparency",
+        "adaptive",
+        "off"
       ],
       "preferences": [
         {
@@ -130,11 +142,13 @@
       "description": "Toggle Conversation Awareness on or off. Requires AirPods or Beats that support Conversation Awareness.",
       "mode": "no-view",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
         "speech",
         "talk",
-        "voice"
+        "switch",
+        "conversational awareness"
       ]
     },
     {
@@ -144,10 +158,16 @@
       "mode": "no-view",
       "interval": "1m",
       "keywords": [
+        "pods-control",
         "airpods",
         "beats",
-        "background",
-        "sync"
+        "anc",
+        "noise cancellation",
+        "noise cancelling",
+        "transparency",
+        "adaptive",
+        "conversation awareness",
+        "listening mode"
       ]
     },
     {
@@ -156,6 +176,7 @@
       "description": "Install, update, or fix the pods-control CLI used by this extension.",
       "mode": "view",
       "keywords": [
+        "pods-control",
         "airpods",
         "cli",
         "install",
