@@ -87,7 +87,7 @@ test("guides Homebrew installation by opening the official instructions", async 
   // When
   await view.click("Open Pods Control on GitHub");
   // Then
-  expect(open).toHaveBeenCalledWith("https://github.com/raulgg/airpods-control#airpods-control");
+  expect(open).toHaveBeenCalledWith("https://github.com/raulgg/pods-control#pods-control");
   expect(view.action("Install with Homebrew")).toBeNull();
   expect(view.action("Copy Source Install Command")).toBeNull();
 });
@@ -185,9 +185,9 @@ test("shows a persistent installing state, prevents duplicate actions, and then 
   await act(async () => installation.resolve(installedCliSetup()));
   // Then
   expect(view.markdown()).toContain("# Pods Control CLI is up to date");
-  expect(view.markdown()).toContain("0.4.0");
+  expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
-  expect(view.markdown()).toContain("/opt/homebrew/bin/airpods-control");
+  expect(view.markdown()).toContain("/opt/homebrew/bin/pods-control");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.actionGroups()).toEqual(statusActions);
   expect(runCliInstallation).toHaveBeenCalledExactlyOnceWith("install");
@@ -218,8 +218,8 @@ test("keeps a new setup view independent of an installation started in a closed 
 });
 
 test.each([
-  ["install", "Install with Homebrew", "Copy Install Command", "brew install raulgg/tap/airpods-control"],
-  ["update", "Update with Homebrew", "Copy Update Command", "brew update\nbrew upgrade raulgg/tap/airpods-control"],
+  ["install", "Install with Homebrew", "Copy Install Command", "brew install raulgg/tap/pods-control"],
+  ["update", "Update with Homebrew", "Copy Update Command", "brew update\nbrew upgrade raulgg/tap/pods-control"],
 ] as const)("offers direct %s before manual alternatives", async (state, title, copyTitle, command) => {
   // Given
   const view = createSetupView();
@@ -229,7 +229,7 @@ test.each([
   // Then
   expect(view.container.querySelector("[data-action-title]")?.getAttribute("data-action-title")).toBe(title);
   if (state === "install") {
-    expect(view.markdown()).toContain("https://github.com/raulgg/airpods-control/blob/HEAD/README.md#install");
+    expect(view.markdown()).toContain("https://github.com/raulgg/pods-control/blob/HEAD/README.md#install");
   } else {
     expect(view.markdown()).toContain("**Latest:**");
     expect(view.markdown()).toContain("Update with Homebrew");
@@ -256,33 +256,33 @@ test.each([
   await act(async () => operation.resolve(installedCliSetup()));
   // Then
   expect(view.markdown()).toContain("# Pods Control CLI is up to date");
-  expect(view.markdown()).toContain("0.4.0");
+  expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
-  expect(view.markdown()).toContain("/opt/homebrew/bin/airpods-control");
+  expect(view.markdown()).toContain("/opt/homebrew/bin/pods-control");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.action("Open Installation Instructions")).toBeNull();
 });
 
 test.each([
-  { name: "Homebrew has not linked the keg", brewLinked: false, command: "brew link raulgg/tap/airpods-control" },
+  { name: "Homebrew has not linked the keg", brewLinked: false, command: "brew link raulgg/tap/pods-control" },
   {
     name: "Homebrew already reports the keg as linked",
     brewLinked: true,
-    command: "brew link --overwrite raulgg/tap/airpods-control",
+    command: "brew link --overwrite raulgg/tap/pods-control",
   },
-  { name: "the link status is unknown", brewLinked: null, command: "brew link raulgg/tap/airpods-control" },
+  { name: "the link status is unknown", brewLinked: null, command: "brew link raulgg/tap/pods-control" },
 ] as const)("copies the link command that applies when $name", async ({ brewLinked, command }) => {
   // Given
   const view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
-    cliSetup({ state: "needs-link", brewCliPrefix: "/opt/homebrew/opt/airpods-control", brewLinked }),
+    cliSetup({ state: "needs-link", brewCliPrefix: "/opt/homebrew/opt/pods-control", brewLinked }),
   );
   // When
   await view.render();
   await view.click("Copy Link Command");
   // Then
   expect(Clipboard.copy).toHaveBeenCalledWith(command);
-  expect(view.markdown()).toContain("/opt/homebrew/opt/airpods-control/bin/airpods-control");
+  expect(view.markdown()).toContain("/opt/homebrew/opt/pods-control/bin/pods-control");
   expect(view.action("Copy Reinstall Command")).toBeNull();
 });
 
@@ -290,14 +290,14 @@ test("offers a reinstall when the Homebrew keg holds no usable CLI", async () =>
   // Given
   const view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
-    cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/airpods-control" }),
+    cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/pods-control" }),
   );
   // When
   await view.render();
   await view.click("Copy Reinstall Command");
   // Then
-  expect(Clipboard.copy).toHaveBeenCalledWith("brew reinstall raulgg/tap/airpods-control");
-  expect(view.markdown()).toContain("/opt/homebrew/opt/airpods-control/bin/airpods-control");
+  expect(Clipboard.copy).toHaveBeenCalledWith("brew reinstall raulgg/tap/pods-control");
+  expect(view.markdown()).toContain("/opt/homebrew/opt/pods-control/bin/pods-control");
   expect(view.action("Copy Link Command")).toBeNull();
 });
 
@@ -386,7 +386,7 @@ test.each([
   },
   {
     name: "needs Homebrew reinstall",
-    setup: cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/airpods-control" }),
+    setup: cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/pods-control" }),
     groups: [{ title: null, actions: ["Copy Reinstall Command"] }, github, refresh],
   },
   {
@@ -412,11 +412,11 @@ test.each([
     name: "manual up to date",
     setup: cliSetup({
       state: "manual-cli",
-      cliPath: "/usr/local/bin/airpods-control",
+      cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
       installationMethod: "manual",
-      installedVersion: "0.4.0",
-      latestVersion: "0.4.0",
+      installedVersion: "0.5.0",
+      latestVersion: "0.5.0",
       latestSource: "github",
       versionStatus: "up-to-date",
       meetsMinimum: true,
@@ -427,11 +427,11 @@ test.each([
     name: "manual update available",
     setup: cliSetup({
       state: "manual-cli",
-      cliPath: "/usr/local/bin/airpods-control",
+      cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
       installationMethod: "manual",
-      installedVersion: "0.4.0",
-      latestVersion: "0.5.0",
+      installedVersion: "0.5.0",
+      latestVersion: "0.6.0",
       latestSource: "github",
       versionStatus: "update-available",
       meetsMinimum: true,
@@ -490,7 +490,7 @@ test("hides Homebrew update actions when the helper is up to date", async () => 
   expect(view.action("Open Installation Instructions")).toBeNull();
   expect(view.action("Open Extension Preferences")).toBeNull();
   expect(view.markdown()).toContain("# Pods Control CLI is up to date");
-  expect(view.markdown()).toContain("0.4.0");
+  expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.actionGroups()).toEqual(statusActions);
@@ -502,11 +502,11 @@ test("hides manual update instructions when the helper is up to date", async () 
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
       state: "manual-cli",
-      cliPath: "/usr/local/bin/airpods-control",
+      cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
       installationMethod: "manual",
-      installedVersion: "0.4.0",
-      latestVersion: "0.4.0",
+      installedVersion: "0.5.0",
+      latestVersion: "0.5.0",
       latestSource: "github",
       versionStatus: "up-to-date",
       meetsMinimum: true,
@@ -520,7 +520,7 @@ test("hides manual update instructions when the helper is up to date", async () 
   expect(view.action("Copy Source Install Command")).toBeNull();
   expect(view.action("Update with Homebrew")).toBeNull();
   expect(view.markdown()).toContain("# Pods Control CLI is up to date");
-  expect(view.markdown()).toContain("0.4.0");
+  expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Manual");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.actionGroups()).toEqual(statusActions);
@@ -532,11 +532,11 @@ test("copies the source install command for a manual update without Homebrew hel
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
       state: "manual-cli",
-      cliPath: "/usr/local/bin/airpods-control",
+      cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
       installationMethod: "manual",
-      installedVersion: "0.4.0",
-      latestVersion: "0.5.0",
+      installedVersion: "0.5.0",
+      latestVersion: "0.6.0",
       latestSource: "github",
       versionStatus: "update-available",
       meetsMinimum: true,
@@ -549,14 +549,14 @@ test("copies the source install command for a manual update without Homebrew hel
   // Then
   expect(Clipboard.copy).toHaveBeenCalledWith(
     [
-      "tag=$(curl -fsSL -o /dev/null -w '%{url_effective}' https://github.com/raulgg/airpods-control/releases/latest)",
+      "tag=$(curl -fsSL -o /dev/null -w '%{url_effective}' https://github.com/raulgg/pods-control/releases/latest)",
       "tag=${tag##*/}",
-      "base=https://raw.githubusercontent.com/raulgg/airpods-control/$tag",
+      "base=https://raw.githubusercontent.com/raulgg/pods-control/$tag",
       'curl -fsSL "$base/scripts/install-from-source.sh" | sh -s -- --version "$tag"',
     ].join("\n"),
   );
-  expect(open).toHaveBeenCalledWith("https://github.com/raulgg/airpods-control/blob/HEAD/README.md#install");
-  expect(view.markdown()).toContain("https://github.com/raulgg/airpods-control/blob/HEAD/README.md#install");
+  expect(open).toHaveBeenCalledWith("https://github.com/raulgg/pods-control/blob/HEAD/README.md#install");
+  expect(view.markdown()).toContain("https://github.com/raulgg/pods-control/blob/HEAD/README.md#install");
   expect(view.action("Open Homebrew Installation Instructions")).toBeNull();
   expect(view.action("Update with Homebrew")).toBeNull();
   expect(view.action("Copy Update Command")).toBeNull();

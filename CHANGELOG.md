@@ -2,7 +2,7 @@
 
 ## [Initial Version] - {PR_MERGE_DATE}
 
-- Control AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Cancellation) and Conversation Awareness from Raycast commands, backed by the [pods-control CLI](https://github.com/raulgg/airpods-control)
+- Control AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Cancellation) and Conversation Awareness from Raycast commands, backed by the [pods-control CLI](https://github.com/raulgg/pods-control) 0.5.0 or later
 - Cycle through the listening modes you select, skipping modes the connected device does not support
 - Toggle Conversation Awareness
 - Show the current listening mode and Conversation Awareness state in command subtitles, confirmed by macOS

@@ -33,11 +33,11 @@ test("returns the Homebrew path when the binary is there", () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/airpods-control", "/usr/local/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control");
   // When
   const result = findCliPath();
   // Then
-  expect(result).toBe("/opt/homebrew/bin/airpods-control");
+  expect(result).toBe("/opt/homebrew/bin/pods-control");
 });
 
 test("falls back to the next search path", () => {
@@ -45,11 +45,11 @@ test("falls back to the next search path", () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockInstalledAt("/usr/local/bin/airpods-control");
+  mockInstalledAt("/usr/local/bin/pods-control");
   // When
   const result = findCliPath();
   // Then
-  expect(result).toBe("/usr/local/bin/airpods-control");
+  expect(result).toBe("/usr/local/bin/pods-control");
 });
 
 test("returns null when the binary is nowhere to be found", () => {
@@ -68,12 +68,12 @@ test("uses the CLI Path preference when set", () => {
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/airpods-control" } as never);
-  mockInstalledAt("/custom/bin/airpods-control");
+  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/pods-control" } as never);
+  mockInstalledAt("/custom/bin/pods-control");
   // When
   const result = findCliPath();
   // Then
-  expect(result).toBe("/custom/bin/airpods-control");
+  expect(result).toBe("/custom/bin/pods-control");
 });
 
 test("does not fall back to default paths when the CLI Path preference is invalid", () => {
@@ -81,8 +81,8 @@ test("does not fall back to default paths when the CLI Path preference is invali
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/airpods-control" } as never);
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/pods-control" } as never);
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   // When
   const result = findCliPath();
   // Then
@@ -109,22 +109,22 @@ test("ignores a whitespace-only CLI Path preference", () => {
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
   mockInstalledAt();
   mockGetPreferenceValues.mockReturnValue({ cliPath: "   " } as never);
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   // When
   const result = findCliPath();
   // Then
-  expect(result).toBe("/opt/homebrew/bin/airpods-control");
+  expect(result).toBe("/opt/homebrew/bin/pods-control");
 });
 
 test("finds the CLI inside a Homebrew keg that no search path exposes", () => {
   // Given
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt("/opt/homebrew/opt/airpods-control/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/opt/pods-control/bin/pods-control");
   // When
-  const result = findBrewPrefixCli("/opt/homebrew/opt/airpods-control");
+  const result = findBrewPrefixCli("/opt/homebrew/opt/pods-control");
   // Then
-  expect(result).toBe("/opt/homebrew/opt/airpods-control/bin/airpods-control");
+  expect(result).toBe("/opt/homebrew/opt/pods-control/bin/pods-control");
   // Then the keg stays out of automatic discovery.
   expect(findCliPath()).toBeNull();
 });
@@ -133,7 +133,7 @@ test.each([
   { name: "the keg holds no executable", installed: [] as string[], isFile: true },
   {
     name: "the keg path is a directory",
-    installed: ["/opt/homebrew/opt/airpods-control/bin/airpods-control"],
+    installed: ["/opt/homebrew/opt/pods-control/bin/pods-control"],
     isFile: false,
   },
 ])("reports no keg CLI when $name", ({ installed, isFile }) => {
@@ -142,7 +142,7 @@ test.each([
   mockStatSync.mockReturnValue({ isFile: () => isFile } as never);
   mockInstalledAt(...installed);
   // When
-  const result = findBrewPrefixCli("/opt/homebrew/opt/airpods-control");
+  const result = findBrewPrefixCli("/opt/homebrew/opt/pods-control");
   // Then
   expect(result).toBeNull();
 });
@@ -156,7 +156,7 @@ test("mirrors findCliPath", () => {
   const result = isCliInstalled();
   // Then
   expect(result).toBe(false);
-  mockInstalledAt("/opt/homebrew/bin/airpods-control");
+  mockInstalledAt("/opt/homebrew/bin/pods-control");
   // When
   const result2 = isCliInstalled();
   // Then

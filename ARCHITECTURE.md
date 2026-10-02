@@ -1,6 +1,6 @@
 # Architecture
 
-Pods Control has eight Raycast command entrypoints in `src/`. Keep those filenames and their manifest identifiers stable (`pods-status` and `manage-cli` among them). The folders below group the implementation by responsibility; none of them changes the CLI's contract.
+Pods Control has eight Raycast command entrypoints in `src/`. Keep those filenames and their manifest identifiers stable (`pods-status` and `manage-cli` among them). The folders below group the implementation by responsibility; none of them changes the CLI's contract. The wrapped CLI is `pods-control` from `raulgg/tap/pods-control`, minimum `v0.5.0`.
 
 ## Finding the code
 

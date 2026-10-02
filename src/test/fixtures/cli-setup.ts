@@ -23,10 +23,10 @@ export function cliSetup(overrides: Partial<CliSetup> = {}): CliSetup {
 export function installedCliSetup(overrides: Partial<CliSetup> = {}): CliSetup {
   return cliSetup({
     state: "update",
-    cliPath: "/opt/homebrew/bin/airpods-control",
-    brewCliPrefix: "/opt/homebrew/opt/airpods-control",
-    installedVersion: "0.4.0",
-    latestVersion: "0.4.0",
+    cliPath: "/opt/homebrew/bin/pods-control",
+    brewCliPrefix: "/opt/homebrew/opt/pods-control",
+    installedVersion: "0.5.0",
+    latestVersion: "0.5.0",
     latestSource: "homebrew",
     liveCheckFailed: false,
     installationMethod: "homebrew",

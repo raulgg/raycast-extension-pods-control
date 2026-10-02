@@ -141,7 +141,7 @@ export function brewLockSupervisorCommand(file: string, args: string[]) {
   lockFilePath();
   return {
     file: BASH_PATH,
-    args: ["-c", BREW_LOCK_SUPERVISOR_SCRIPT, "airpods-control-brew-supervisor", file, ...args],
+    args: ["-c", BREW_LOCK_SUPERVISOR_SCRIPT, "pods-control-brew-supervisor", file, ...args],
   };
 }
 

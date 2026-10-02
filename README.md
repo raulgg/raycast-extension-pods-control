@@ -2,14 +2,14 @@
 
 Pods Control is a Raycast extension, backed by a local CLI, for controlling AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Cancellation) and Conversation Awareness, straight from Raycast commands. Command subtitles show the current state as confirmed by macOS.
 
-It runs on macOS only. The CLI still ships as [`airpods-control`](https://github.com/raulgg/airpods-control) until that project is renamed. Beats headphones that expose these controls in macOS may also work; see the CLI's [compatibility matrix](https://github.com/raulgg/airpods-control/blob/HEAD/docs/compatibility.md) for tested models.
+It runs on macOS only. Beats headphones that expose these controls in macOS may also work; see the CLI's [compatibility matrix](https://github.com/raulgg/pods-control/blob/HEAD/docs/compatibility.md) for tested models.
 
 ## Setup
 
 1. Install the CLI with [Homebrew](https://brew.sh). It builds from source, so this can take a few minutes. If Homebrew reports that Apple's Command Line Tools are missing, run `xcode-select --install` first.
 
    ```bash
-   brew install raulgg/tap/airpods-control
+   brew install raulgg/tap/pods-control
    ```
 
    You can also skip this step: run any Pods Control command and accept **Install with Homebrew** when prompted.
@@ -17,9 +17,9 @@ It runs on macOS only. The CLI still ships as [`airpods-control`](https://github
 2. Connect your AirPods or Beats and select them as your Mac's audio output.
 3. Run a Pods Control command.
 
-The extension needs CLI 0.4.0 or later and looks for it in `/opt/homebrew/bin` and `/usr/local/bin`. **Manage CLI** shows the installed version and offers **Update with Homebrew** when a newer release is available.
+The extension needs CLI 0.5.0 or later and looks for it in `/opt/homebrew/bin` and `/usr/local/bin`. **Manage CLI** shows the installed version and offers **Update with Homebrew** when a newer release is available.
 
-**Installing without Homebrew.** Follow the CLI's [installation instructions](https://github.com/raulgg/airpods-control/blob/HEAD/README.md#install) and keep the complete installation together, including `avbypass.dylib`. If the binary is outside the standard locations, set its full path in the **CLI Path** preference.
+**Installing without Homebrew.** Follow the CLI's [installation instructions](https://github.com/raulgg/pods-control/blob/HEAD/README.md#install) and keep the complete installation together, including `avbypass.dylib`. If the binary is outside the standard locations, set its full path in the **CLI Path** preference.
 
 ## Commands
 
@@ -40,7 +40,7 @@ Control commands show a success toast while Raycast is open and a HUD when it is
 
 | Preference                 | Command              | Description                                                                                                           |
 | -------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **CLI Path**               | Extension            | Full path to the `airpods-control` binary. Leave empty for automatic detection. A set path overrides detection.       |
+| **CLI Path**               | Extension            | Full path to the `pods-control` binary. Leave empty for automatic detection. A set path overrides detection.          |
 | **Modes to Cycle Through** | Cycle Listening Mode | Checkboxes for Noise Cancellation, Transparency, Adaptive, and Off. Select at least two. Off is unchecked by default. |
 
 ## Troubleshooting
@@ -55,7 +55,7 @@ Connect your AirPods or Beats and select them as the Mac's audio output. If seve
 
 ### Adaptive or Conversation Awareness is unavailable
 
-Both depend on your model and firmware. Check the [compatibility matrix](https://github.com/raulgg/airpods-control/blob/HEAD/docs/compatibility.md). **Set to Adaptive** is disabled by default; enable it in Raycast's extension settings if your model supports it.
+Both depend on your model and firmware. Check the [compatibility matrix](https://github.com/raulgg/pods-control/blob/HEAD/docs/compatibility.md). **Set to Adaptive** is disabled by default; enable it in Raycast's extension settings if your model supports it.
 
 ### Off is unavailable
 
@@ -63,8 +63,8 @@ macOS lets you exclude Off from noise control. Enable it in your AirPods setting
 
 ### Commands stopped working after a macOS update
 
-Check the compatibility matrix and update the CLI from **Manage CLI** or with `brew upgrade raulgg/tap/airpods-control`. A successful install does not by itself mean your device is supported.
+Check the compatibility matrix and update the CLI from **Manage CLI** or with `brew upgrade raulgg/tap/pods-control`. A successful install does not by itself mean your device is supported.
 
 ## Privacy and security
 
-The extension only runs the CLI locally and collects no analytics. The CLI uses private macOS audio interfaces together with a companion library that adjusts an entitlement check inside its own process; it does not need Accessibility permission or elevated privileges, but Apple can change these interfaces in any macOS update. Read the CLI's [security and trust model](https://github.com/raulgg/airpods-control/blob/HEAD/SECURITY.md) before installing. The CLI keeps a small local cache, described in its [reference](https://github.com/raulgg/airpods-control/blob/HEAD/docs/cli.md#cached-allow-off-availability).
+The extension only runs the CLI locally and collects no analytics. The CLI uses private macOS audio interfaces together with a companion library that adjusts an entitlement check inside its own process; it does not need Accessibility permission or elevated privileges, but Apple can change these interfaces in any macOS update. Read the CLI's [security and trust model](https://github.com/raulgg/pods-control/blob/HEAD/SECURITY.md) before installing. The CLI keeps a small local cache, described in its [reference](https://github.com/raulgg/pods-control/blob/HEAD/docs/cli.md#cached-allow-off-availability).

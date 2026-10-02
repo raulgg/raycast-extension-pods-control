@@ -12,7 +12,7 @@ test("lists version facts and omits the path when the CLI location is unknown", 
   // When
   const [facts] = paragraphs(setup);
   // Then
-  expect(facts).toBe("- **Version:** 0.4.0\n- **Install method:** Homebrew");
+  expect(facts).toBe("- **Version:** 0.5.0\n- **Install method:** Homebrew");
 });
 
 test("shows the latest version only on update screens", () => {
@@ -21,7 +21,7 @@ test("shows the latest version only on update screens", () => {
   const update = setupScreen(outdatedCliSetup());
   // Then
   expect(upToDate.body).not.toContain("**Latest:**");
-  expect(update.body).toContain("- **Latest:** 0.4.0");
+  expect(update.body).toContain("- **Latest:** 0.5.0");
 });
 
 test.each([
@@ -83,17 +83,17 @@ test("skips the version and minimum notes when nothing needs attention", () => {
   const body = paragraphs(setup);
   // Then
   expect(body).toHaveLength(1);
-  expect(body[0]).toContain("- **Version:** 0.4.0");
+  expect(body[0]).toContain("- **Version:** 0.5.0");
   expect(body[0]).not.toContain("minimum");
 });
 
 test.each([
-  { brewLinked: true, cause: "already linked", command: "brew link --overwrite raulgg/tap/airpods-control" },
-  { brewLinked: false, cause: "has not linked", command: "brew link raulgg/tap/airpods-control" },
-  { brewLinked: null, cause: "could not report", command: "brew link raulgg/tap/airpods-control" },
+  { brewLinked: true, cause: "already linked", command: "brew link --overwrite raulgg/tap/pods-control" },
+  { brewLinked: false, cause: "has not linked", command: "brew link raulgg/tap/pods-control" },
+  { brewLinked: null, cause: "could not report", command: "brew link raulgg/tap/pods-control" },
 ] as const)("explains and fixes the link when brewLinked is $brewLinked", ({ brewLinked, cause, command }) => {
   // Given
-  const setup = cliSetup({ state: "needs-link", brewCliPrefix: "/opt/homebrew/opt/airpods-control", brewLinked });
+  const setup = cliSetup({ state: "needs-link", brewCliPrefix: "/opt/homebrew/opt/pods-control", brewLinked });
   // When
   const screen = setupScreen(setup);
   // Then

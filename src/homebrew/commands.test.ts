@@ -16,7 +16,7 @@ vi.mock("./lock", () => ({
   acquireBrewLock: vi.fn().mockResolvedValue(undefined),
   brewLockSupervisorCommand: (file: string, args: string[]) => ({
     file: "/bin/bash",
-    args: ["-c", "supervisor", "airpods-control-brew-supervisor", file, ...args],
+    args: ["-c", "supervisor", "pods-control-brew-supervisor", file, ...args],
   }),
   openBrewLock: vi.fn(() => 42),
 }));
@@ -131,10 +131,10 @@ test("runs brew install with the CLI formula", async () => {
     [
       "-c",
       "supervisor",
-      "airpods-control-brew-supervisor",
+      "pods-control-brew-supervisor",
       "/opt/homebrew/bin/brew",
       "install",
-      "raulgg/tap/airpods-control",
+      "raulgg/tap/pods-control",
     ],
     expect.anything(),
   );
@@ -154,10 +154,10 @@ test("runs brew upgrade with the CLI formula", async () => {
     [
       "-c",
       "supervisor",
-      "airpods-control-brew-supervisor",
+      "pods-control-brew-supervisor",
       "/opt/homebrew/bin/brew",
       "upgrade",
-      "raulgg/tap/airpods-control",
+      "raulgg/tap/pods-control",
     ],
     expect.anything(),
   );
@@ -220,7 +220,7 @@ test("does not query a prefix for an uninstalled formula", async () => {
   mockBrewAt();
   mockAcquireBrewLock.mockResolvedValue(undefined);
   mockProcessResult();
-  mockExecFileResult(null, "", "git\nother/tap/airpods-control\n");
+  mockExecFileResult(null, "", "git\nother/tap/pods-control\n");
   // When
   const result = await findBrewCliPrefix("/opt/homebrew/bin/brew");
   // Then
@@ -238,8 +238,8 @@ test("reads the tap stable version from brew info JSON", async () => {
     "",
     JSON.stringify({
       formulae: [
-        { full_name: "other/tap/airpods-control", versions: { stable: "9.9.9" } },
-        { full_name: "raulgg/tap/airpods-control", versions: { stable: "0.4.0" } },
+        { full_name: "other/tap/pods-control", versions: { stable: "9.9.9" } },
+        { full_name: "raulgg/tap/pods-control", versions: { stable: "0.4.0" } },
       ],
     }),
   );
@@ -249,7 +249,7 @@ test("reads the tap stable version from brew info JSON", async () => {
   expect(result).toBe("0.4.0");
   expect(mockExecFile).toHaveBeenCalledWith(
     "/opt/homebrew/bin/brew",
-    ["info", "--json=v2", "raulgg/tap/airpods-control"],
+    ["info", "--json=v2", "raulgg/tap/pods-control"],
     expect.anything(),
     expect.any(Function),
   );
@@ -280,8 +280,8 @@ test.each([
     "",
     JSON.stringify({
       formulae: [
-        { full_name: "other/tap/airpods-control", linked_keg: "9.9.9" },
-        { full_name: "raulgg/tap/airpods-control", linked_keg: linkedKeg },
+        { full_name: "other/tap/pods-control", linked_keg: "9.9.9" },
+        { full_name: "raulgg/tap/pods-control", linked_keg: linkedKeg },
       ],
     }),
   );
@@ -291,7 +291,7 @@ test.each([
   expect(result).toBe(expected);
   expect(mockExecFile).toHaveBeenCalledWith(
     "/opt/homebrew/bin/brew",
-    ["info", "--json=v2", "raulgg/tap/airpods-control"],
+    ["info", "--json=v2", "raulgg/tap/pods-control"],
     expect.anything(),
     expect.any(Function),
   );
@@ -302,7 +302,7 @@ test.each([
   {
     name: "the formula carries no link status",
     error: null,
-    stdout: JSON.stringify({ formulae: [{ full_name: "raulgg/tap/airpods-control" }] }),
+    stdout: JSON.stringify({ formulae: [{ full_name: "raulgg/tap/pods-control" }] }),
   },
   { name: "the output is not brew info JSON", error: null, stdout: "{not json" },
 ])("leaves the link status unknown when $name", async ({ error, stdout }) => {
@@ -335,16 +335,12 @@ test("looks up the prefix of the installed formula from the correct tap", async 
   mockAcquireBrewLock.mockResolvedValue(undefined);
   mockProcessResult();
   mockExecFile.mockImplementation((_file: string, args: string[], _options: unknown, callback: ExecCallback) => {
-    callback(
-      null,
-      args[0] === "list" ? "raulgg/tap/airpods-control" + "\n" : "/opt/homebrew/opt/airpods-control\n",
-      "",
-    );
+    callback(null, args[0] === "list" ? "raulgg/tap/pods-control" + "\n" : "/opt/homebrew/opt/pods-control\n", "");
   });
   // When
   const result = await findBrewCliPrefix("/opt/homebrew/bin/brew");
   // Then
-  expect(result).toBe("/opt/homebrew/opt/airpods-control");
+  expect(result).toBe("/opt/homebrew/opt/pods-control");
 });
 
 test("preserves Homebrew errors when brew exits with the lock status", async () => {
