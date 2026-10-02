@@ -1,4 +1,4 @@
-import { execFile } from "child_process";
+import { execFile, type ExecFileException } from "child_process";
 import { accessSync } from "fs";
 import { expect, vi, test } from "vitest";
 import { detectDeveloperTools } from "./developer-tools";
@@ -17,6 +17,10 @@ function mockXcodeSelectUnavailable() {
   vi.mocked(accessSync).mockImplementation(() => {
     throw new Error("ENOENT");
   });
+}
+
+function execFailure(message: string): ExecFileException {
+  return Object.assign(new Error(message), { cmd: message });
 }
 
 test("accepts a working selected Swift toolchain, including full Xcode", async () => {
@@ -66,7 +70,7 @@ test("does not invoke xcrun or open an installer without a selected toolchain", 
     return {} as ReturnType<typeof execFile>;
   });
   exec.mockImplementationOnce((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(new Error("no developer directory"), "", "");
+    if (typeof callback === "function") callback(execFailure("no developer directory"), "", "");
     return {} as ReturnType<typeof execFile>;
   });
   // When
@@ -86,7 +90,7 @@ test("detects a broken Swift compiler even when xcode-select succeeds", async ()
   });
   exec.mockImplementation((_file, _args, _options, callback) => {
     if (typeof callback === "function")
-      callback(_file === "/usr/bin/xcrun" ? new Error("broken compiler") : null, "", "");
+      callback(_file === "/usr/bin/xcrun" ? execFailure("broken compiler") : null, "", "");
     return {} as ReturnType<typeof execFile>;
   });
   // When
@@ -105,7 +109,7 @@ test("requires clang as well as Swift for the companion library", async () => {
   });
   exec.mockImplementation((_file, args, _options, callback) => {
     if (typeof callback === "function")
-      callback(Array.isArray(args) && args[0] === "clang" ? new Error("missing clang") : null, "", "");
+      callback(Array.isArray(args) && args[0] === "clang" ? execFailure("missing clang") : null, "", "");
     return {} as ReturnType<typeof execFile>;
   });
   // When

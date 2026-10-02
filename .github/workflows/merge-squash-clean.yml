@@ -1,0 +1,36 @@
+name: Merge squash clean
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: Pull request number to squash-merge
+        required: true
+        type: string
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: merge-squash-clean-${{ github.event.inputs.pull_request_number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'merge'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Squash-merge without AI co-authors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x .github/scripts/squash-merge-clean.sh
+          .github/scripts/squash-merge-clean.sh "${{ github.event.inputs.pull_request_number || github.event.pull_request.number }}"
