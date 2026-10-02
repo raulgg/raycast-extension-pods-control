@@ -1,6 +1,6 @@
 # Pods Control
 
-Pods Control is a Raycast extension, backed by a local CLI, for controlling AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Cancellation) and Conversation Awareness, straight from Raycast commands. Command subtitles show the current state as confirmed by macOS.
+Control AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Cancellation) and Conversation Awareness from Raycast, using a local CLI. Command subtitles show the current state as confirmed by macOS.
 
 It runs on macOS only. Beats headphones that expose these controls in macOS may also work; see the CLI's [compatibility matrix](https://github.com/raulgg/pods-control/blob/HEAD/docs/compatibility.md) for tested models.
 
