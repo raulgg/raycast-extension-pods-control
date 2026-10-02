@@ -43,3 +43,28 @@ test("schedules status refresh while leaving direct controls unscheduled", () =>
     expect(command.interval).toBeUndefined();
   }
 });
+
+test("indexes CLI aliases on the commands that accept them", () => {
+  // Given
+  const aliasesByCommand = {
+    "set-noise-cancellation": ["lm", "anc", "nc"],
+    "set-transparency": ["lm", "trans"],
+    "set-adaptive": ["lm", "auto", "automatic"],
+    "set-off": ["lm"],
+    "cycle-listening-mode": ["lm", "anc", "nc", "trans"],
+    "toggle-conversation-awareness": ["ca"],
+    "pods-status": ["lm", "ca"],
+  };
+
+  // When
+  const keywordsByCommand = Object.fromEntries(manifest.commands.map(({ name, keywords }) => [name, keywords]));
+
+  // Then
+  expect(manifest.keywords.length).toBeLessThanOrEqual(12);
+  for (const [name, aliases] of Object.entries(aliasesByCommand)) {
+    expect(keywordsByCommand[name]).toEqual(expect.arrayContaining(aliases));
+  }
+  for (const command of manifest.commands) {
+    expect(command.keywords.length).toBeLessThanOrEqual(12);
+  }
+});
