@@ -11,6 +11,7 @@ import { runSetListeningModeCommand } from "../../controls/listening-mode";
 import cycleListeningMode from "../../cycle-listening-mode";
 import { refreshStatus } from "../../status/refresh";
 import {
+  DEFAULT_COMMAND_SUBTITLE,
   publishCommandSubtitle,
   resetCommandSubtitle,
   reserveSubtitleRevisionForReset,
@@ -72,7 +73,7 @@ test.skipIf(process.platform !== "darwin")("clears the subtitle when the confirm
   expect(PodsControlCli.setListeningMode).toHaveBeenCalledWith("anc");
   expect(mockUpdateCommandMetadata.mock.calls.map(([metadata]) => metadata)).toEqual([
     { subtitle: "Noise Cancellation ●" },
-    { subtitle: null },
+    { subtitle: DEFAULT_COMMAND_SUBTITLE },
   ]);
 });
 
@@ -235,7 +236,7 @@ test.skipIf(process.platform !== "darwin")(
       // Then
       expect(mockUpdateCommandMetadata.mock.calls.map(([metadata]) => metadata)).toEqual([
         { subtitle: "Noise Cancellation ●" },
-        { subtitle: null },
+        { subtitle: DEFAULT_COMMAND_SUBTITLE },
       ]);
     } finally {
       resolveSet("anc");

@@ -1,6 +1,6 @@
 import { updateCommandMetadata } from "@raycast/api";
 import { expect, vi, test } from "vitest";
-import { publishCommandSubtitle, resetCommandSubtitle } from "../../subtitles/coordination";
+import { DEFAULT_COMMAND_SUBTITLE, publishCommandSubtitle, resetCommandSubtitle } from "../../subtitles/coordination";
 import { expectConsoleError } from "../console";
 import { createSupportDirectory } from "../fixtures/support-directory";
 
@@ -21,7 +21,7 @@ test.skipIf(process.platform !== "darwin")(
     // When
     await resetCommandSubtitle(options);
     // Then
-    expect(mockUpdateCommandMetadata).toHaveBeenLastCalledWith({ subtitle: null });
+    expect(mockUpdateCommandMetadata).toHaveBeenLastCalledWith({ subtitle: DEFAULT_COMMAND_SUBTITLE });
   },
 );
 
@@ -36,7 +36,7 @@ test.skipIf(process.platform !== "darwin")("restores the manifest subtitle when 
   await publishCommandSubtitle("◑ Adaptive", options);
   // Then
   expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(1, { subtitle: "◑ Adaptive" });
-  expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(2, { subtitle: null });
+  expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(2, { subtitle: DEFAULT_COMMAND_SUBTITLE });
 });
 
 test.skipIf(process.platform !== "darwin")("does not surface reset failures", async () => {

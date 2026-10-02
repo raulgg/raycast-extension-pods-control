@@ -26,6 +26,9 @@ const INITIAL_REVISION_STATE: RevisionState = {
 
 const LOCKF_PATH = "/usr/bin/lockf";
 const LOCK_TIMEOUT_SECONDS = "10";
+/** Shown when a command has no confirmed status. Null would stay blank after the first clear. */
+export const DEFAULT_COMMAND_SUBTITLE = "Pods Control";
+
 const METADATA_LOCK_NAME = "subtitle-metadata.lock";
 const GLOBAL_OPERATION_LOCK_NAME = "subtitle-operation.lock";
 const OPERATION_LOCK_NAMES: Record<SubtitleChannel, string> = {
@@ -198,7 +201,7 @@ async function writeSubtitleForRevision(
 ): Promise<void> {
   await withFileLock(METADATA_LOCK_NAME, async () => {
     if (revisionForChannel(readRevisionState(), channel) !== revision) return;
-    await updateCommandMetadata({ subtitle });
+    await updateCommandMetadata({ subtitle: subtitle ?? DEFAULT_COMMAND_SUBTITLE });
   });
 }
 

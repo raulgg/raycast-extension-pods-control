@@ -36,8 +36,10 @@ test("schedules status refresh while leaving direct controls unscheduled", () =>
   expect(refresh).toMatchObject({ interval: "1m" });
   expect(refresh?.subtitle).toBeUndefined();
   expect(directControls).toHaveLength(2);
+  for (const command of commands) {
+    expect(command.subtitle).toBeUndefined();
+  }
   for (const command of directControls) {
     expect(command.interval).toBeUndefined();
-    expect(command.subtitle).toBeUndefined();
   }
 });
