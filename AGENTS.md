@@ -1,6 +1,16 @@
 # Agent instructions
 
-Use the terms in [GLOSSARY.md](GLOSSARY.md) in everything you write: replies to the user, code, comments, user-facing copy, docs, commits, and pull requests. Do not use the words a term lists under _Avoid_. If a concept is missing or a term does not fit, raise it with the user instead of inventing a new word.
+## Glossary
+
+[GLOSSARY.md](GLOSSARY.md) defines the project's terms. Use them in everything you write: replies to the user, code, comments, user-facing copy, docs, commits, and pull requests. Do not use the words a term lists under _Avoid_.
+
+- When the user uses a word that conflicts with the glossary, say so and ask which meaning they intend.
+- When a word is vague or has more than one meaning, propose a precise term.
+- When the user describes how something works, check that the code agrees, and raise any contradiction.
+- When a term is agreed, update `GLOSSARY.md` right away. An entry has a short definition and the words to avoid. Keep implementation details out.
+- Record a decision in `docs/adr/` only when it is hard to reverse, would surprise a reader without context, and came from a real trade-off.
+
+## Other docs
 
 Read these before changing the matching area:
 
