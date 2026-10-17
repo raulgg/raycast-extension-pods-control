@@ -8,7 +8,6 @@
 - When a word is vague or has more than one meaning, propose a precise term.
 - When the user describes how something works, check that the code agrees, and raise any contradiction.
 - When a term is agreed, update `GLOSSARY.md` right away. An entry has a short definition and the words to avoid. Keep implementation details out.
-- Record a decision in `docs/adr/` only when it is hard to reverse, would surprise a reader without context, and came from a real trade-off.
 
 ## Other docs
 
