@@ -41,7 +41,7 @@ Control commands show a success toast while Raycast is open and a HUD when it is
 | Preference                 | Command              | Description                                                                                                           |
 | -------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | **CLI Path**               | Extension            | Full path to the `pods-control` binary. Leave empty for automatic detection. A set path overrides detection.          |
-| **Modes to Cycle Through** | Cycle Listening Mode | Checkboxes for Noise Cancellation, Transparency, Adaptive, and Off. Select at least two. Off is unchecked by default. |
+| **Modes to Cycle Through** | Cycle Listening Mode | Checkboxes for Off, Transparency, Adaptive, and Noise Cancellation. Select at least two. Off is unchecked by default. |
 
 ## Troubleshooting
 

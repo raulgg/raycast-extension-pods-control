@@ -44,6 +44,28 @@ test("schedules status refresh while leaving direct controls unscheduled", () =>
   }
 });
 
+test("lists cycle preferences in device order with the current defaults", () => {
+  // Given
+  const command = manifest.commands.find((entry) => entry.name === "cycle-listening-mode");
+  const preferences = command && "preferences" in command ? command.preferences : undefined;
+
+  // When
+  const listed = preferences?.map(({ name, label, title, default: checked }) => ({
+    name,
+    label,
+    title: title ?? null,
+    default: checked,
+  }));
+
+  // Then
+  expect(listed).toEqual([
+    { name: "cycleOff", label: "Off", title: "Modes to Cycle Through", default: false },
+    { name: "cycleTransparency", label: "Transparency", title: null, default: true },
+    { name: "cycleAdaptive", label: "Adaptive", title: null, default: true },
+    { name: "cycleAnc", label: "Noise Cancellation", title: null, default: true },
+  ]);
+});
+
 test("indexes CLI aliases on the commands that accept them", () => {
   // Given
   const aliasesByCommand = {
