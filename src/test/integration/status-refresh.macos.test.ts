@@ -4,6 +4,7 @@ import * as PodsControlCli from "../../cli/client";
 import { CliError } from "../../cli/errors";
 import { CYCLE_LISTENING_MODE_COMMAND_NAME, TOGGLE_CONVERSATION_AWARENESS_COMMAND_NAME } from "../../commands/names";
 import { refreshStatus, resetStatusSubtitles, runStatusRefresh } from "../../status/refresh";
+import { DEFAULT_COMMAND_SUBTITLE } from "../../subtitles/coordination";
 import { expectConsoleError } from "../console";
 import { createSupportDirectory } from "../fixtures/support-directory";
 
@@ -143,7 +144,7 @@ test.skipIf(process.platform !== "darwin")(
 
 test.skipIf(process.platform !== "darwin").each([
   ["no-device", "Not connected"],
-  ["unavailable", null],
+  ["unavailable", DEFAULT_COMMAND_SUBTITLE],
 ] as const)("publishes the appropriate subtitle for %s", async (code, subtitle) => {
   // Given
   createSupportDirectory();
