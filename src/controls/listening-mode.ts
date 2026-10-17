@@ -51,13 +51,13 @@ export async function runSetListeningModeCommand(
   await runWithSubtitleOperation("listening-mode", toast, run);
 }
 
-function getEnabledCycleModes(): ListeningModes[] {
+function getEnabledListeningModes(): ListeningModes[] {
   const preferences = getPreferenceValues<CycleCommandPreferences>();
   const enabledModes: ListeningModes[] = [];
   if (preferences.cycleOff) enabledModes.push("off");
   if (preferences.cycleTransparency) enabledModes.push("transparency");
   if (preferences.cycleAdaptive) enabledModes.push("adaptive");
-  if (preferences.cycleAnc) enabledModes.push("anc");
+  if (preferences.cycleAnc) enabledModes.push("noise-cancellation");
   return enabledModes;
 }
 
@@ -69,10 +69,10 @@ export async function runCycleListeningModeCommand(): Promise<void> {
   });
   await toast.setToLoading();
 
-  const enabledModes = getEnabledCycleModes();
+  const enabledModes = getEnabledListeningModes();
   if (enabledModes.length < 2) {
     await toast.setToFailure({
-      error: new Error("Select at least two listening modes in Cycle Listening Mode preferences."),
+      error: new Error("Enable at least two listening modes in Cycle Listening Mode preferences."),
       action: {
         title: "Open Command Preferences",
         onAction: openCommandPreferences,
@@ -93,7 +93,7 @@ export async function runCycleListeningModeCommand(): Promise<void> {
       if (error instanceof CliError && error.code === "unsupported") {
         await toast.setToFailure({
           error: new Error(
-            "The connected device supports fewer than two of the enabled cycle modes. Adjust the command preferences.",
+            "The connected device supports fewer than two of the enabled listening modes. Adjust the command preferences.",
           ),
           action: {
             title: "Open Command Preferences",

@@ -101,7 +101,7 @@ test("does not upgrade a source CLI just because Homebrew is available", async (
   // When
   const result = (await detectCliSetup()).state;
   // Then
-  expect(result).toBe("manual-cli");
+  expect(result).toBe("source-cli");
 });
 
 test("does not update an unrelated Homebrew CLI when a custom binary is active", async () => {
@@ -117,7 +117,7 @@ test("does not update an unrelated Homebrew CLI when a custom binary is active",
   // When
   const result = (await detectCliSetup()).state;
   // Then
-  expect(result).toBe("manual-cli");
+  expect(result).toBe("source-cli");
 });
 
 test("reports a stale custom path before offering any installation", async () => {
@@ -367,7 +367,7 @@ test("treats a stale tap that matches an old install as up to date and below the
   });
 });
 
-test("reports a manual helper as up to date when it matches the GitHub release", async () => {
+test("reports a source-install CLI as up to date when it matches the GitHub release", async () => {
   // Given
   vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
@@ -383,8 +383,8 @@ test("reports a manual helper as up to date when it matches the GitHub release",
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
-    state: "manual-cli",
-    installationMethod: "manual",
+    state: "source-cli",
+    installationMethod: "source",
     installedVersion: "0.5.0",
     latestVersion: "0.5.0",
     latestSource: "github",
@@ -395,7 +395,7 @@ test("reports a manual helper as up to date when it matches the GitHub release",
   expect(findBrewLatestVersion).not.toHaveBeenCalled();
 });
 
-test("reports a manual helper update when GitHub has a newer release", async () => {
+test("reports a source-install CLI update when GitHub has a newer release", async () => {
   // Given
   vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
   vi.mocked(getConfiguredCliPath).mockReturnValue(null);
@@ -413,8 +413,8 @@ test("reports a manual helper update when GitHub has a newer release", async () 
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
-    state: "manual-cli",
-    installationMethod: "manual",
+    state: "source-cli",
+    installationMethod: "source",
     installedVersion: "0.3.0",
     latestVersion: "0.4.0",
     latestSource: "github",
@@ -439,7 +439,7 @@ test("leaves latest unknown when the GitHub latest-release check fails", async (
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
-    state: "manual-cli",
+    state: "source-cli",
     installedVersion: "0.5.0",
     latestVersion: null,
     latestSource: null,
@@ -465,7 +465,7 @@ test("treats a helper newer than the live GitHub release as up to date", async (
   const result = await detectCliSetup();
   // Then
   expect(result).toMatchObject({
-    state: "manual-cli",
+    state: "source-cli",
     installedVersion: "0.5.0",
     latestVersion: "0.4.0",
     latestSource: "github",

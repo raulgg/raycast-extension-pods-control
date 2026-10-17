@@ -5,9 +5,9 @@ import { PODS_STATUS_COMMAND_NAME } from "../commands/names";
 import { type ToastManager } from "../feedback/toast-manager";
 import { type SubtitleChannel, withSubtitleOperation } from "../subtitles/coordination";
 
-const OFF_NOT_APPLIED_HINT =
-  "macOS did not confirm Off after the requested change. Off may be disabled in your AirPods noise-control settings; " +
-  "if so, uncheck Off in the Cycle Listening Mode preferences and disable the Set to Off command.";
+const OFF_NOT_SET_HINT =
+  "macOS did not confirm Off after the requested change. Off Listening Mode may be turned off in your AirPods or Beats settings; " +
+  "turn it on, or disable Off in the Cycle Listening Mode preferences and disable the Set to Off command.";
 
 export async function runWithSubtitleOperation(
   channel: SubtitleChannel,
@@ -48,7 +48,7 @@ export async function showCliFailure(
       return;
     }
     if (error.code === "no-op" && options.offRequested) {
-      await toast.setToFailure({ titleOverride: "Off mode was not applied", error: new Error(OFF_NOT_APPLIED_HINT) });
+      await toast.setToFailure({ titleOverride: "Off was not set", error: new Error(OFF_NOT_SET_HINT) });
       return;
     }
   }

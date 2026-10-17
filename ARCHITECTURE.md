@@ -6,7 +6,7 @@ Pods Control has eight Raycast command entrypoints in `src/`. Keep those filenam
 
 | Task                                               | Start here                                                                                               |
 | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Follow a fixed listening-mode command              | `src/set-*.ts` → `controls/delegate-listening-mode.ts` → Cycle entrypoint → `controls/listening-mode.ts` |
+| Follow a set command                               | `src/set-*.ts` → `controls/delegate-listening-mode.ts` → Cycle entrypoint → `controls/listening-mode.ts` |
 | Change cycling or Conversation Awareness logic     | `src/controls/`                                                                                          |
 | Understand a background launch payload             | `src/commands/launch-context.ts`                                                                         |
 | Follow combined status reads and subtitle dispatch | `src/status/refresh.ts`                                                                                  |
@@ -54,7 +54,7 @@ flowchart TD
   Client --> Domain
 ```
 
-Raycast metadata updates apply in the executing command's context. Fixed-mode commands therefore delegate to Cycle Listening Mode, and the status command dispatches confirmed values back to the feature commands. Preserve these launches when reorganizing files.
+Raycast metadata updates apply in the executing command's context. Set commands therefore delegate to Cycle Listening Mode, and the status command dispatches confirmed values back to the feature commands. Preserve these launches when reorganizing files.
 
 ## Dependency rules
 
@@ -62,7 +62,7 @@ ESLint enforces these boundaries for production code. Keep `eslint.config.js` in
 
 - Entrypoints route user and background launches. They may depend on feature modules; feature modules never import entrypoints.
 - `commands/` owns command identifiers and launch payload validation. It depends only on `features/`.
-- `features/` holds the tokens and labels for the user-facing controls on the connected device (listening mode and Conversation Awareness). It has no Raycast or Node dependencies.
+- `features/` holds the tokens and labels for the features of the connected device (listening mode and Conversation Awareness). It has no Raycast or Node dependencies.
 - `cli/` owns the external CLI contract and execution. It never imports setup, controls, status, subtitles, or feedback.
 - `subtitles/` reads state through the CLI client and publishes metadata. It never imports controls or status.
 - `controls/` and `status/` coordinate their own workflows and talk to each other only through Raycast launches.
@@ -78,7 +78,7 @@ These describe existing behavior. Changing any of them needs its own behavior re
 
 **Commands and delegation**
 
-- Fixed-mode delegation keeps its guarded fallback. Setup belongs to the originating command, and a successful installation never resumes the original command.
+- Set-command delegation keeps its guarded fallback. Setup belongs to the originating command, and a successful installation never resumes the original command.
 - Invalid or legacy background contexts without a usable revision trigger a fresh read. A valid context may carry an explicit null state. User-initiated invalid contexts keep their existing error handling.
 - Background commands stay silent, never start an installation, and never change a listening setting.
 - Preserve command identifiers, preference keys, visible messages, action ordering, shortcuts, and CLI version references during structural maintenance.
@@ -93,13 +93,13 @@ These describe existing behavior. Changing any of them needs its own behavior re
 - Control operations and status snapshots take the global operation lock. Feature operations also take their channel lock. Metadata writes compare durable revisions under the metadata lock.
 - Preserve lock filenames, revision JSON keys, lock acquisition order, and atomic revision writes. A delayed publication must not overwrite a newer operation.
 - A control command requests a status refresh after releasing its operation lock, including after a failed CLI action. A lock acquisition failure does not run the CLI.
-- The combined subtitle keeps its last confirmed value on transient or malformed total reads. Disconnection, unavailable controls, and partial reads keep their separate outcomes. Feature subtitles can reset independently.
+- The combined subtitle keeps its last confirmed value on transient or malformed total reads. Disconnection, unavailable features, and partial reads keep their separate outcomes. Feature subtitles can reset independently.
 
 **Setup and updates**
 
 - Setup detection precedence, persistent completion and error screens, cancellation guards, and in-process pending promises stay unchanged.
 - An update is offered when the latest release is newer than the installed CLI, when the latest check fails, or when the installed CLI is below `MIN_CLI_VERSION`. `MIN_CLI_VERSION` is a compatibility floor only; latest versions come from Homebrew (`brew info`, local tap, no `brew update`) or GitHub (`releases/latest`). The copied source-install command resolves `releases/latest`. User-facing docs link GitHub `HEAD`.
-- Actions follow the current setup state: Homebrew install help only when Homebrew is missing, the source-install copy only for a manual CLI that needs an update, and no update or install-docs action on an up-to-date CLI.
+- Actions follow the current setup state: Homebrew install help only when Homebrew is missing, the source-install copy only for a source install that needs an update, and no update or install-docs action on an up-to-date CLI.
 - When Homebrew owns the formula but discovery finds no CLI, setup diagnoses before recommending: a keg without a usable executable gets `brew reinstall`; a usable keg executable gets `brew link`, or `brew link --overwrite` when Homebrew's `linked_keg` says it is already linked; an unreadable link status keeps the plain link. The keg path is diagnostic only and never joins `CLI_SEARCH_PATHS`. Homebrew is asked for link status only on this path.
 
 **Homebrew processes**

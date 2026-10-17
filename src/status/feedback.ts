@@ -6,7 +6,7 @@ import { totalReadFailureIncludes, type StatusRefreshResult } from "./result";
 function fulfilledStatusMessage(result: StatusRefreshResult): string {
   const parts: string[] = [];
   if (result.listeningMode.status === "fulfilled") {
-    parts.push(`Listening: ${listeningModeSubtitle(result.listeningMode.value)}`);
+    parts.push(`Listening Mode: ${listeningModeSubtitle(result.listeningMode.value)}`);
   }
   if (result.conversationAwareness.status === "fulfilled") {
     parts.push(`Conversation Awareness: ${conversationAwarenessSubtitle(result.conversationAwareness.value)}`);

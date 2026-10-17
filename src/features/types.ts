@@ -1,4 +1,4 @@
-export type ListeningModes = "off" | "anc" | "transparency" | "adaptive";
+export type ListeningModes = "off" | "noise-cancellation" | "transparency" | "adaptive";
 
 export type ConversationAwarenessState = "on" | "off";
 

@@ -11,7 +11,7 @@ export const LISTENING_MODE_PRESENTATION = {
   off: { label: "Off", symbol: "○̸" },
   transparency: { label: "Transparency", symbol: "○" },
   adaptive: { label: "Adaptive", symbol: "◑" },
-  anc: { label: "Noise Cancellation", symbol: "●" },
+  "noise-cancellation": { label: "Noise Cancellation", symbol: "●" },
 } as const satisfies Record<ListeningModes, StatePresentation>;
 
 export const CONVERSATION_AWARENESS_PRESENTATION = {
