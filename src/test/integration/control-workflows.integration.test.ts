@@ -46,6 +46,12 @@ const defaultCyclePreferences: CycleCommandPreferences = {
   cycleAnc: true,
 };
 
+function enabledCycleModes(): string[] {
+  expect(PodsControlCli.cycleListeningMode).toHaveBeenCalledOnce();
+  const modes = vi.mocked(PodsControlCli.cycleListeningMode).mock.calls[0][0] ?? [];
+  return [...modes].sort();
+}
+
 test.each([
   ["set", () => runSetListeningModeCommand("adaptive", { updateCycleSubtitle: true })],
   ["fallback set", () => runSetListeningModeCommand("adaptive", { updateCycleSubtitle: false })],
@@ -473,7 +479,7 @@ test("publishes the confirmed mode after cycling", async () => {
   await runCycleListeningModeCommand();
   // Then
   expect(PodsControlCli.getListeningMode).not.toHaveBeenCalled();
-  expect(PodsControlCli.cycleListeningMode).toHaveBeenCalledWith(["transparency", "adaptive", "anc"]);
+  expect(enabledCycleModes()).toEqual(["adaptive", "anc", "transparency"]);
   expect(mockPublishCommandSubtitle).toHaveBeenCalledExactlyOnceWith("Adaptive ◑", {
     channel: "listening-mode",
     revision: "test-revision",
@@ -489,7 +495,7 @@ test("publishes the confirmed mode after cycling", async () => {
 test.each([
   ["zero", { cycleOff: false, cycleTransparency: false, cycleAdaptive: false, cycleAnc: false }],
   ["one", { cycleOff: false, cycleTransparency: true, cycleAdaptive: false, cycleAnc: false }],
-] as const)("rejects %s selected cycle modes before reading or writing", async (_count, preferences) => {
+] as const)("rejects %s enabled cycle modes before reading or writing", async (_count, preferences) => {
   // Given
   const toast = {
     setToLoading: vi.fn().mockResolvedValue(undefined),
@@ -524,7 +530,7 @@ test.each([
   expect(toast.setToSuccess).not.toHaveBeenCalled();
 });
 
-test("passes the selected modes to the CLI in canonical order", async () => {
+test("passes the checked modes to the CLI", async () => {
   // Given
   const toast = {
     setToLoading: vi.fn().mockResolvedValue(undefined),
@@ -551,14 +557,14 @@ test("passes the selected modes to the CLI in canonical order", async () => {
   // When
   await runCycleListeningModeCommand();
   // Then
-  expect(PodsControlCli.cycleListeningMode).toHaveBeenCalledWith(["transparency", "anc"]);
+  expect(enabledCycleModes()).toEqual(["anc", "transparency"]);
   expect(mockPublishCommandSubtitle).toHaveBeenCalledExactlyOnceWith("Noise Cancellation ●", {
     channel: "listening-mode",
     revision: "test-revision",
   });
 });
 
-test("publishes confirmed state while preserving selected-mode failure guidance", async () => {
+test("publishes confirmed state while preserving enabled-mode failure guidance", async () => {
   // Given
   const toast = {
     setToLoading: vi.fn().mockResolvedValue(undefined),

@@ -6,7 +6,6 @@ import { LISTENING_MODE_PRESENTATION, listeningModeHud } from "../features/prese
 import { ToastManager } from "../feedback/toast-manager";
 import { publishListeningModeSubtitle } from "../subtitles/feature-subtitles";
 import { runWithSubtitleOperation, showCliFailure } from "./control-operation";
-import { CYCLE_MODE_ORDER } from "./preferences";
 import type { CycleCommandPreferences } from "./preferences";
 import type { ListeningModes } from "../features/types";
 interface SetListeningModeCommandOptions {
@@ -52,15 +51,14 @@ export async function runSetListeningModeCommand(
   await runWithSubtitleOperation("listening-mode", toast, run);
 }
 
-function getSelectedCycleModes(): ListeningModes[] {
+function getEnabledCycleModes(): ListeningModes[] {
   const preferences = getPreferenceValues<CycleCommandPreferences>();
-  const isSelected: Record<ListeningModes, boolean> = {
-    off: preferences.cycleOff,
-    transparency: preferences.cycleTransparency,
-    adaptive: preferences.cycleAdaptive,
-    anc: preferences.cycleAnc,
-  };
-  return CYCLE_MODE_ORDER.filter((mode) => isSelected[mode]);
+  const enabledModes: ListeningModes[] = [];
+  if (preferences.cycleOff) enabledModes.push("off");
+  if (preferences.cycleTransparency) enabledModes.push("transparency");
+  if (preferences.cycleAdaptive) enabledModes.push("adaptive");
+  if (preferences.cycleAnc) enabledModes.push("anc");
+  return enabledModes;
 }
 
 export async function runCycleListeningModeCommand(): Promise<void> {
@@ -71,8 +69,8 @@ export async function runCycleListeningModeCommand(): Promise<void> {
   });
   await toast.setToLoading();
 
-  const selectedModes = getSelectedCycleModes();
-  if (selectedModes.length < 2) {
+  const enabledModes = getEnabledCycleModes();
+  if (enabledModes.length < 2) {
     await toast.setToFailure({
       error: new Error("Select at least two listening modes in Cycle Listening Mode preferences."),
       action: {
@@ -85,7 +83,7 @@ export async function runCycleListeningModeCommand(): Promise<void> {
 
   const run = async (revision: SubtitleRevision): Promise<void> => {
     try {
-      const confirmedMode = await PodsControlCli.cycleListeningMode(selectedModes);
+      const confirmedMode = await PodsControlCli.cycleListeningMode(enabledModes);
       await publishListeningModeSubtitle(confirmedMode, revision);
       await toast.setToSuccess({
         titleOverride: listeningModeHud(confirmedMode),
@@ -95,7 +93,7 @@ export async function runCycleListeningModeCommand(): Promise<void> {
       if (error instanceof CliError && error.code === "unsupported") {
         await toast.setToFailure({
           error: new Error(
-            "The connected device supports fewer than two of the selected cycle modes. Adjust the command preferences.",
+            "The connected device supports fewer than two of the enabled cycle modes. Adjust the command preferences.",
           ),
           action: {
             title: "Open Command Preferences",
@@ -104,7 +102,7 @@ export async function runCycleListeningModeCommand(): Promise<void> {
         });
         return;
       }
-      await showCliFailure(toast, error, { offRequested: selectedModes.includes("off") });
+      await showCliFailure(toast, error, { offRequested: enabledModes.includes("off") });
     }
   };
 

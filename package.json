@@ -130,12 +130,12 @@
       ],
       "preferences": [
         {
-          "name": "cycleAnc",
+          "name": "cycleOff",
           "title": "Modes to Cycle Through",
-          "label": "Noise Cancellation",
-          "description": "Include Noise Cancellation when cycling listening modes.",
+          "label": "Off",
+          "description": "Include Off when cycling listening modes.",
           "type": "checkbox",
-          "default": true,
+          "default": false,
           "required": false
         },
         {
@@ -155,11 +155,11 @@
           "required": false
         },
         {
-          "name": "cycleOff",
-          "label": "Off",
-          "description": "Include Off when cycling listening modes.",
+          "name": "cycleAnc",
+          "label": "Noise Cancellation",
+          "description": "Include Noise Cancellation when cycling listening modes.",
           "type": "checkbox",
-          "default": false,
+          "default": true,
           "required": false
         }
       ]
