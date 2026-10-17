@@ -5,7 +5,7 @@ import type { ConversationAwarenessState, ListeningModes } from "../features/typ
 
 const CLI_MODE_TOKENS: Record<ListeningModes, CliListeningMode> = {
   off: "off",
-  anc: "noise-cancellation",
+  "noise-cancellation": "noise-cancellation",
   transparency: "transparency",
   adaptive: "adaptive",
 };
@@ -14,7 +14,7 @@ const EXTENSION_MODES: Record<CliListeningMode, ListeningModes> = {
   off: "off",
   transparency: "transparency",
   adaptive: "adaptive",
-  "noise-cancellation": "anc",
+  "noise-cancellation": "noise-cancellation",
 };
 
 function isCliListeningMode(value: string): value is CliListeningMode {

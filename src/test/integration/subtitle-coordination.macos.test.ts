@@ -61,16 +61,16 @@ test.skipIf(process.platform !== "darwin")("clears the subtitle when the confirm
   mockLaunchCommand.mockResolvedValue(undefined);
   mockUpdateCommandMetadata.mockResolvedValue(undefined);
   vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-  vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+  vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
   vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
   vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
   const error = new Error("metadata failed");
   expectConsoleError("Failed to update the command subtitle", error);
   mockUpdateCommandMetadata.mockRejectedValueOnce(error);
   // When
-  await runSetListeningModeCommand("anc", { updateCycleSubtitle: true });
+  await runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
   // Then
-  expect(PodsControlCli.setListeningMode).toHaveBeenCalledWith("anc");
+  expect(PodsControlCli.setListeningMode).toHaveBeenCalledWith("noise-cancellation");
   expect(mockUpdateCommandMetadata.mock.calls.map(([metadata]) => metadata)).toEqual([
     { subtitle: "Noise Cancellation ●" },
     { subtitle: DEFAULT_COMMAND_SUBTITLE },
@@ -86,7 +86,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     vi.mocked(PodsControlCli.setListeningMode).mockImplementationOnce(async () => {
@@ -123,7 +123,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     let resolveListeningRead!: (mode: ListeningModes) => void;
@@ -136,7 +136,7 @@ test.skipIf(process.platform !== "darwin")(
     const running: Promise<unknown>[] = [refreshPromise];
     try {
       await vi.waitFor(() => expect(PodsControlCli.getListeningMode).toHaveBeenCalledOnce());
-      const controlPromise = runSetListeningModeCommand("anc", { updateCycleSubtitle: true });
+      const controlPromise = runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
       running.push(controlPromise);
       await Promise.resolve();
       // Then
@@ -165,7 +165,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     const firstRead = deferred<ListeningModes>();
@@ -174,7 +174,7 @@ test.skipIf(process.platform !== "darwin")(
       if (readCount++ === 0) {
         return firstRead.promise;
       }
-      return Promise.resolve("anc");
+      return Promise.resolve("noise-cancellation");
     });
     // When
     const firstRefresh = refreshStatus();
@@ -212,7 +212,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     let resolveSet!: (mode: ListeningModes) => void;
@@ -221,7 +221,7 @@ test.skipIf(process.platform !== "darwin")(
     });
     vi.mocked(PodsControlCli.setListeningMode).mockReturnValue(setResult);
     // When
-    const controlPromise = runSetListeningModeCommand("anc", { updateCycleSubtitle: true });
+    const controlPromise = runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
     const running: Promise<unknown>[] = [controlPromise];
     try {
       await vi.waitFor(() => expect(PodsControlCli.setListeningMode).toHaveBeenCalledOnce());
@@ -230,7 +230,7 @@ test.skipIf(process.platform !== "darwin")(
       await Promise.resolve();
       // Then
       expect(mockUpdateCommandMetadata).not.toHaveBeenCalled();
-      resolveSet("anc");
+      resolveSet("noise-cancellation");
       // When
       await Promise.all([controlPromise, resetPromise]);
       // Then
@@ -239,7 +239,7 @@ test.skipIf(process.platform !== "darwin")(
         { subtitle: DEFAULT_COMMAND_SUBTITLE },
       ]);
     } finally {
-      resolveSet("anc");
+      resolveSet("noise-cancellation");
       await Promise.allSettled(running);
     }
   },
@@ -254,7 +254,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     const launches: LaunchCall[] = [];
@@ -273,7 +273,7 @@ test.skipIf(process.platform !== "darwin")(
       }),
     );
     // When
-    await runSetListeningModeCommand("anc", { updateCycleSubtitle: true });
+    await runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
     // Then
     const metadataCallCountAfterSet = mockUpdateCommandMetadata.mock.calls.length;
     // When
@@ -297,7 +297,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     const launches: LaunchCall[] = [];
@@ -340,10 +340,10 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
-    vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("noise-cancellation");
     // When
     await cycleListeningMode({
       launchType: LaunchType.Background,
@@ -366,7 +366,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("on");
@@ -392,7 +392,7 @@ test.skipIf(process.platform !== "darwin").each(["missing", "malformed"] as cons
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     // When
@@ -424,7 +424,7 @@ test.skipIf(process.platform !== "darwin")(
     mockLaunchCommand.mockResolvedValue(undefined);
     mockUpdateCommandMetadata.mockResolvedValue(undefined);
     vi.mocked(PodsControlCli.getListeningMode).mockResolvedValue("transparency");
-    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("anc");
+    vi.mocked(PodsControlCli.setListeningMode).mockResolvedValue("noise-cancellation");
     vi.mocked(PodsControlCli.getConversationAwareness).mockResolvedValue("off");
     vi.mocked(PodsControlCli.setConversationAwareness).mockResolvedValue("on");
     let resolveSet!: (mode: ListeningModes) => void;
@@ -433,14 +433,14 @@ test.skipIf(process.platform !== "darwin")(
     });
     vi.mocked(PodsControlCli.setListeningMode).mockReturnValue(setResult);
     // When
-    const controlPromise = runSetListeningModeCommand("anc", { updateCycleSubtitle: true });
+    const controlPromise = runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
     const lockPath = join(environment.supportPath, "subtitle-listening-mode-operation.lock");
     try {
       await vi.waitFor(() => expect(PodsControlCli.setListeningMode).toHaveBeenCalledOnce());
       // Then
       await expect(runLockf(lockPath, "0")).resolves.toBe(75);
     } finally {
-      resolveSet("anc");
+      resolveSet("noise-cancellation");
       await controlPromise;
     }
     // Then

@@ -134,7 +134,7 @@ test("guides developer tools installation by opening Apple's official instructio
   expect(view.action("Install with Homebrew")).not.toBeNull();
 });
 
-test.each(["manual-cli", "invalid-cli-path", "needs-link", "needs-reinstall"] as const)(
+test.each(["source-cli", "invalid-cli-path", "needs-link", "needs-reinstall"] as const)(
   "offers recovery instead of install or upgrade for %s",
   async (state) => {
     // Given
@@ -184,7 +184,7 @@ test("shows a persistent installing state, prevents duplicate actions, and then 
   // When
   await act(async () => installation.resolve(installedCliSetup()));
   // Then
-  expect(view.markdown()).toContain("# Pods Control CLI is up to date");
+  expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
   expect(view.markdown()).toContain("/opt/homebrew/bin/pods-control");
@@ -255,7 +255,7 @@ test.each([
   // When
   await act(async () => operation.resolve(installedCliSetup()));
   // Then
-  expect(view.markdown()).toContain("# Pods Control CLI is up to date");
+  expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
   expect(view.markdown()).toContain("/opt/homebrew/bin/pods-control");
@@ -409,12 +409,12 @@ test.each([
     ],
   },
   {
-    name: "manual up to date",
+    name: "source install up to date",
     setup: cliSetup({
-      state: "manual-cli",
+      state: "source-cli",
       cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
-      installationMethod: "manual",
+      installationMethod: "source",
       installedVersion: "0.5.0",
       latestVersion: "0.5.0",
       latestSource: "github",
@@ -424,12 +424,12 @@ test.each([
     groups: statusActions,
   },
   {
-    name: "manual update available",
+    name: "source install update available",
     setup: cliSetup({
-      state: "manual-cli",
+      state: "source-cli",
       cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
-      installationMethod: "manual",
+      installationMethod: "source",
       installedVersion: "0.5.0",
       latestVersion: "0.6.0",
       latestSource: "github",
@@ -489,22 +489,22 @@ test("hides Homebrew update actions when the helper is up to date", async () => 
   expect(view.action("Copy Update Command")).toBeNull();
   expect(view.action("Open Installation Instructions")).toBeNull();
   expect(view.action("Open Extension Preferences")).toBeNull();
-  expect(view.markdown()).toContain("# Pods Control CLI is up to date");
+  expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.actionGroups()).toEqual(statusActions);
 });
 
-test("hides manual update instructions when the helper is up to date", async () => {
+test("hides source-install update instructions when the CLI is up to date", async () => {
   // Given
   const view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
-      state: "manual-cli",
+      state: "source-cli",
       cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
-      installationMethod: "manual",
+      installationMethod: "source",
       installedVersion: "0.5.0",
       latestVersion: "0.5.0",
       latestSource: "github",
@@ -519,22 +519,22 @@ test("hides manual update instructions when the helper is up to date", async () 
   expect(view.action("Open Homebrew Installation Instructions")).toBeNull();
   expect(view.action("Copy Source Install Command")).toBeNull();
   expect(view.action("Update with Homebrew")).toBeNull();
-  expect(view.markdown()).toContain("# Pods Control CLI is up to date");
+  expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
-  expect(view.markdown()).toContain("Manual");
+  expect(view.markdown()).toContain("Source");
   expect(view.markdown()).not.toContain("**Latest:**");
   expect(view.actionGroups()).toEqual(statusActions);
 });
 
-test("copies the source install command for a manual update without Homebrew help", async () => {
+test("copies the source install command for a source-install update without Homebrew help", async () => {
   // Given
   const view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
-      state: "manual-cli",
+      state: "source-cli",
       cliPath: "/usr/local/bin/pods-control",
       brewPath: null,
-      installationMethod: "manual",
+      installationMethod: "source",
       installedVersion: "0.5.0",
       latestVersion: "0.6.0",
       latestSource: "github",

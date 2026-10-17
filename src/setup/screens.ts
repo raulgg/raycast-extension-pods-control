@@ -7,7 +7,7 @@ import {
   CLI_INSTALL_COMMAND,
   CLI_INSTALL_DOCS_URL,
   CLI_LINK_COMMAND,
-  CLI_MANUAL_UPDATE_COMMAND,
+  CLI_TERMINAL_UPDATE_COMMAND,
   CLI_REINSTALL_COMMAND,
   CLI_RELINK_COMMAND,
   CLI_REPO_HOME_URL,
@@ -34,8 +34,8 @@ export interface SetupScreen {
   isLoading: boolean;
 }
 
-/** `update` and `manual-cli` each split into an update screen and a shared up-to-date screen. */
-type SetupScreenKind = Exclude<CliSetupState, "manual-cli"> | "manual-update" | "up-to-date";
+/** `update` and `source-cli` each split into an update screen and a shared up-to-date screen. */
+type SetupScreenKind = Exclude<CliSetupState, "source-cli"> | "source-update" | "up-to-date";
 
 interface ScreenContent {
   title: string;
@@ -126,7 +126,7 @@ const SEARCHED_PATHS = CLI_SEARCH_PATHS.map((path) => `\`${path}\``).join(" or "
 const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> = {
   installing: () =>
     screen({
-      title: "Installing Pods Control CLI…",
+      title: "Installing pods-control CLI…",
       body: [
         "Homebrew already has an install or update in progress. This can take several minutes. Keep Raycast running until it finishes.",
       ],
@@ -143,16 +143,16 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
     screen({
       title: "Install Apple's developer tools",
       body: [
-        "Apple's developer tools are needed to install the Pods Control CLI.",
+        "Apple's developer tools are needed to install the pods-control CLI.",
         `Follow [Apple's official installation instructions](${DEVELOPER_TOOLS_DOCS_URL}).`,
       ],
       actions: [[DEVELOPER_TOOLS_DOCS, GITHUB], [REFRESH]],
     }),
   "invalid-cli-path": (setup) =>
     screen({
-      title: "Fix Pods Control CLI Path",
+      title: "Fix pods-control CLI Path",
       body: [
-        "Raycast could not find the Pods Control CLI at the saved **CLI Path**.",
+        "Raycast could not find the pods-control CLI at the saved **CLI Path**.",
         code(setup.configuredCliPath ?? ""),
         "Clear or correct it in Extension Preferences.",
       ],
@@ -161,7 +161,7 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
   "needs-link": (setup) => {
     const { cause, command } = LINK_GUIDANCE[linkState(setup)];
     return screen({
-      title: "Finish Pods Control CLI setup",
+      title: "Finish pods-control CLI setup",
       body: [
         `Homebrew installed the CLI at ${kegCliLabel(setup)}, but Raycast needs it at ${SEARCHED_PATHS}.`,
         cause,
@@ -174,7 +174,7 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
   },
   "needs-reinstall": (setup) =>
     screen({
-      title: "Repair Pods Control CLI",
+      title: "Repair pods-control CLI",
       body: [
         `Homebrew lists the formula, but there is no usable \`${CLI_BINARY_NAME}\` binary at ${kegCliLabel(setup)}. The install is incomplete, so linking cannot fix it.`,
         "Copy the command and run it in Terminal. Homebrew builds from source, so this can take several minutes.",
@@ -188,9 +188,9 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
     }),
   install: () =>
     screen({
-      title: "Install Pods Control CLI",
+      title: "Install pods-control CLI",
       body: [
-        "The Pods Control CLI is not installed. Homebrew and Apple's developer tools are ready.",
+        "The pods-control CLI is not installed. Homebrew and Apple's developer tools are ready.",
         "Choose **Install with Homebrew**, or copy the install command and run it in Terminal. Homebrew can take several minutes; keep Raycast running until it finishes.",
         `To install from source, follow the [installation instructions](${CLI_INSTALL_DOCS_URL}).`,
       ],
@@ -205,7 +205,7 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
     }),
   update: (setup) =>
     screen({
-      title: "Update Pods Control CLI",
+      title: "Update pods-control CLI",
       body: [
         updateFacts(setup),
         firstNote(UPDATE_NOTES, setup),
@@ -216,15 +216,15 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
       actions: [
         [
           { type: "run", title: "Update with Homebrew", operation: "update" },
-          { type: "copy", title: "Copy Update Command", content: CLI_MANUAL_UPDATE_COMMAND },
+          { type: "copy", title: "Copy Update Command", content: CLI_TERMINAL_UPDATE_COMMAND },
         ],
         [INSTALL_DOCS, GITHUB],
         [REFRESH],
       ],
     }),
-  "manual-update": (setup) =>
+  "source-update": (setup) =>
     screen({
-      title: "Update Pods Control CLI",
+      title: "Update pods-control CLI",
       body: [
         updateFacts(setup),
         firstNote(UPDATE_NOTES, setup),
@@ -240,7 +240,7 @@ const SETUP_SCREENS: Record<SetupScreenKind, (setup: CliSetup) => SetupScreen> =
     }),
   "up-to-date": (setup) =>
     screen({
-      title: "Pods Control CLI is up to date",
+      title: "pods-control CLI is up to date",
       body: [installedFacts(setup), firstNote(STATUS_NOTES, setup), minimumVersionNote(setup)],
       actions: [[GITHUB]],
     }),
@@ -252,7 +252,7 @@ const LIFECYCLE_SCREENS: {
   [S in CliSetupLifecycle["status"]]: (lifecycle: Extract<CliSetupLifecycle, { status: S }>) => SetupScreen;
 } = {
   checking: () =>
-    screen({ title: "Pods Control CLI", body: ["Checking your installation…"], actions: [], isLoading: true }),
+    screen({ title: "pods-control CLI", body: ["Checking your installation…"], actions: [], isLoading: true }),
   ready: ({ setup }) => setupScreen(setup),
   running: ({ operation }) =>
     screen({
@@ -263,7 +263,7 @@ const LIFECYCLE_SCREENS: {
     }),
   failed: ({ error }) =>
     screen({
-      title: "Pods Control CLI needs attention",
+      title: "pods-control CLI needs attention",
       body: [indent(error)],
       actions: [[{ type: "copy", title: "Copy Error", content: error }], [INSTALL_DOCS, GITHUB], [REFRESH]],
     }),
@@ -285,7 +285,7 @@ export function screenMarkdown({ title, body }: SetupScreen): string {
 
 function setupScreenKind(setup: CliSetup): SetupScreenKind {
   if (setup.state === "update") return setupNeedsUpdate(setup) ? "update" : "up-to-date";
-  if (setup.state === "manual-cli") return setupNeedsUpdate(setup) ? "manual-update" : "up-to-date";
+  if (setup.state === "source-cli") return setupNeedsUpdate(setup) ? "source-update" : "up-to-date";
   return setup.state;
 }
 
@@ -297,7 +297,7 @@ function screen({ title, body, actions, isLoading = false }: ScreenContent): Set
 
 const METHOD_LABEL: Record<NonNullable<CliSetup["installationMethod"]>, string> = {
   homebrew: "Homebrew",
-  manual: "Manual",
+  source: "Source",
 };
 
 function installedFacts(setup: CliSetup): string {

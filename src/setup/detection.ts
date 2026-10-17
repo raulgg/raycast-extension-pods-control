@@ -18,13 +18,13 @@ export type CliSetupState =
   | "needs-homebrew"
   | "needs-developer-tools"
   | "invalid-cli-path"
-  | "manual-cli"
+  | "source-cli"
   | "needs-link"
   | "needs-reinstall"
   | "install"
   | "update";
 
-export type CliInstallationMethod = "homebrew" | "manual";
+export type CliInstallationMethod = "homebrew" | "source";
 
 export type LatestVersionSource = "homebrew" | "github";
 
@@ -97,14 +97,14 @@ export async function detectCliSetup(): Promise<CliSetup> {
   if (developerTools !== "ready") return { ...details, state: "needs-developer-tools" };
   if (!brewPath) {
     return cliPath
-      ? withVersion({ ...details, state: "manual-cli", installationMethod: "manual" }, githubLatest())
+      ? withVersion({ ...details, state: "source-cli", installationMethod: "source" }, githubLatest())
       : { ...details, state: "needs-homebrew" };
   }
   if (cliPath) {
     if (isBrewManagedCli(cliPath, brewCliPrefix)) {
       return withVersion({ ...details, state: "update", installationMethod: "homebrew" }, homebrewLatest(brewPath));
     }
-    return withVersion({ ...details, state: "manual-cli", installationMethod: "manual" }, githubLatest());
+    return withVersion({ ...details, state: "source-cli", installationMethod: "source" }, githubLatest());
   }
   if (!brewCliPrefix) return { ...details, state: "install" };
   // A keg without a usable binary cannot be repaired by linking.

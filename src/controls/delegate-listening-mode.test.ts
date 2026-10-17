@@ -43,13 +43,13 @@ test("uses the guarded CLI workflow when Cycle cannot be launched", async () => 
   expectConsoleWarning("Could not delegate to Cycle Listening Mode; using the CLI fallback", error);
   mockLaunchCommand.mockRejectedValue(error);
   // When
-  await setListeningMode("anc");
+  await setListeningMode("noise-cancellation");
   // Then
   expect(promptForCliInstallation).not.toHaveBeenCalled();
-  expect(runSetListeningModeCommand).toHaveBeenCalledWith("anc", { updateCycleSubtitle: false });
+  expect(runSetListeningModeCommand).toHaveBeenCalledWith("noise-cancellation", { updateCycleSubtitle: false });
 });
 
-test.each(["anc", "transparency", "adaptive", "off"] as const)(
+test.each(["noise-cancellation", "transparency", "adaptive", "off"] as const)(
   "owns missing-CLI setup for %s without delegating or starting a second installer",
   async (mode) => {
     // Given

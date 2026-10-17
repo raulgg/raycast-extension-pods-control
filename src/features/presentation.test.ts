@@ -11,7 +11,7 @@ test.each([
   ["off", "Off ○̸", "Set to Off ○̸"],
   ["transparency", "Transparency ○", "Set to Transparency ○"],
   ["adaptive", "Adaptive ◑", "Set to Adaptive ◑"],
-  ["anc", "Noise Cancellation ●", "Set to Noise Cancellation ●"],
+  ["noise-cancellation", "Noise Cancellation ●", "Set to Noise Cancellation ●"],
 ] as const)("formats %s listening mode", (mode, subtitle, hud) => {
   // Given the input supplied by this case
   // When
@@ -40,7 +40,7 @@ test.each([
 });
 
 test.each([
-  [{ listeningMode: "anc", conversationAwareness: "on" }, "Noise Cancellation ● · CA ●"],
+  [{ listeningMode: "noise-cancellation", conversationAwareness: "on" }, "Noise Cancellation ● · CA ●"],
   [{ listeningMode: "transparency", conversationAwareness: "off" }, "Transparency ○ · CA ○̸"],
   [{ listeningMode: "adaptive", conversationAwareness: null }, "Adaptive ◑"],
   [{ listeningMode: null, conversationAwareness: "on" }, "CA ●"],

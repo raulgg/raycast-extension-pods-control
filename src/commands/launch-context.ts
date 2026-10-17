@@ -7,7 +7,7 @@ export interface SetListeningModeLaunchContext {
   mode: ListeningModes;
 }
 
-const LISTENING_MODES: ReadonlySet<string> = new Set(["off", "anc", "transparency", "adaptive"]);
+const LISTENING_MODES: ReadonlySet<string> = new Set(["off", "noise-cancellation", "transparency", "adaptive"]);
 
 export function modeFromLaunchContext(context: unknown): ListeningModes | null {
   if (typeof context !== "object" || context === null) return null;

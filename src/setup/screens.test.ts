@@ -60,7 +60,7 @@ test("never reports an unreadable version on the up-to-date screen", () => {
   // When
   const screen = setupScreen(setup);
   // Then
-  expect(screen.title).toBe("Pods Control CLI is up to date");
+  expect(screen.title).toBe("pods-control CLI is up to date");
   expect(screen.body).toContain("- **Version:** unknown");
   expect(screen.body).not.toContain("Could not determine the CLI version.");
   expect(screen.body).toContain("Could not confirm the latest release.");

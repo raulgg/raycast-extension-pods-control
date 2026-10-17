@@ -10,7 +10,7 @@ vi.mock("./controls/delegate-listening-mode", () => ({ setListeningMode: vi.fn()
 const mockSetListeningMode = vi.mocked(setListeningMode);
 
 test.each([
-  ["noise cancellation", setNoiseCancellation, "anc"],
+  ["noise cancellation", setNoiseCancellation, "noise-cancellation"],
   ["transparency", setTransparency, "transparency"],
   ["adaptive", setAdaptive, "adaptive"],
   ["off", setOff, "off"],

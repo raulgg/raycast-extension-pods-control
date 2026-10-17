@@ -112,7 +112,7 @@
     {
       "name": "cycle-listening-mode",
       "title": "Cycle Listening Mode",
-      "description": "Cycle through your preferred listening modes. The current mode is read from the connected AirPods or Beats before cycling, and unsupported modes are skipped.",
+      "description": "Cycle through your enabled listening modes. The current mode is read from the connected AirPods or Beats before cycling, and unsupported modes are skipped.",
       "mode": "no-view",
       "keywords": [
         "pods-control",
@@ -133,7 +133,7 @@
           "name": "cycleOff",
           "title": "Modes to Cycle Through",
           "label": "Off",
-          "description": "Include Off when cycling listening modes.",
+          "description": "Enable Off when cycling listening modes.",
           "type": "checkbox",
           "default": false,
           "required": false
@@ -141,7 +141,7 @@
         {
           "name": "cycleTransparency",
           "label": "Transparency",
-          "description": "Include Transparency when cycling listening modes.",
+          "description": "Enable Transparency when cycling listening modes.",
           "type": "checkbox",
           "default": true,
           "required": false
@@ -149,7 +149,7 @@
         {
           "name": "cycleAdaptive",
           "label": "Adaptive",
-          "description": "Include Adaptive when cycling listening modes. Skipped automatically if the connected device does not support it.",
+          "description": "Enable Adaptive when cycling listening modes. Skipped automatically if the connected device does not support it.",
           "type": "checkbox",
           "default": false,
           "required": false
@@ -157,7 +157,7 @@
         {
           "name": "cycleAnc",
           "label": "Noise Cancellation",
-          "description": "Include Noise Cancellation when cycling listening modes.",
+          "description": "Enable Noise Cancellation when cycling listening modes.",
           "type": "checkbox",
           "default": true,
           "required": false

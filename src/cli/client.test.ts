@@ -23,7 +23,7 @@ test.each([
   ["off", "off"],
   ["transparency", "transparency"],
   ["adaptive", "adaptive"],
-  ["anc", "noise-cancellation"],
+  ["noise-cancellation", "noise-cancellation"],
 ] as const)("sets %s using the canonical CLI token", async (mode, token) => {
   // Given
   mockRunCli.mockResolvedValue({ result: "ok", device: "AirPods", listeningMode: token });
@@ -40,16 +40,16 @@ test("treats a no-op with the requested confirmed mode as success", async () => 
     new CliError("no-op", { result: "error", device: "AirPods", listeningMode: "noise-cancellation" }),
   );
   // When
-  const result = setListeningMode("anc");
+  const result = setListeningMode("noise-cancellation");
   // Then
-  await expect(result).resolves.toBe("anc");
+  await expect(result).resolves.toBe("noise-cancellation");
 });
 
 test("rejects a successful set response that confirms a different mode", async () => {
   // Given
   mockRunCli.mockResolvedValue({ result: "ok", device: "AirPods", listeningMode: "transparency" });
   // When
-  const result = setListeningMode("anc");
+  const result = setListeningMode("noise-cancellation");
   // Then
   await expect(result).rejects.toMatchObject({
     code: "no-op",
@@ -61,7 +61,7 @@ test("cycles a selected set in CLI order supplied by the workflow", async () => 
   // Given
   mockRunCli.mockResolvedValue({ result: "ok", device: "AirPods", listeningMode: "adaptive" });
   // When
-  const result = cycleListeningMode(["off", "adaptive", "anc"]);
+  const result = cycleListeningMode(["off", "adaptive", "noise-cancellation"]);
   // Then
   await expect(result).resolves.toBe("adaptive");
   expect(mockRunCli).toHaveBeenCalledWith(["listening-mode", "cycle", "--modes", "off,adaptive,noise-cancellation"]);
@@ -82,7 +82,7 @@ test("gets and maps the current listening mode", async () => {
   // When
   const result = getListeningMode();
   // Then
-  await expect(result).resolves.toBe("anc");
+  await expect(result).resolves.toBe("noise-cancellation");
 });
 
 test.each([null, "", "future-mode", "toString", "constructor", "__proto__"])(

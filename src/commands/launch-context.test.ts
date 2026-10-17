@@ -31,7 +31,7 @@ test.each([
   undefined,
   null,
   {},
-  { operation: "set", mode: "anc" },
+  { operation: "set", mode: "noise-cancellation" },
   { operation: "refresh-listening-mode-subtitle", mode: "future" },
 ])("rejects invalid listening mode refresh context %j", (context) => {
   // Given the input supplied by this case
@@ -57,7 +57,7 @@ test.each([
 
 test.each([
   [{ operation: "set", mode: "off" }, "off"],
-  [{ operation: "set", mode: "anc" }, "anc"],
+  [{ operation: "set", mode: "noise-cancellation" }, "noise-cancellation"],
   [{ operation: "set", mode: "transparency" }, "transparency"],
   [{ operation: "set", mode: "adaptive" }, "adaptive"],
 ] as const)("accepts valid launch context %j", (context, mode) => {
@@ -68,13 +68,16 @@ test.each([
   expect(result).toBe(mode);
 });
 
-test.each([undefined, null, {}, { operation: "cycle", mode: "anc" }, { operation: "set", mode: "future" }])(
-  "rejects invalid launch context %j",
-  (context) => {
-    // Given the input supplied by this case
-    // When
-    const result = modeFromLaunchContext(context);
-    // Then
-    expect(result).toBeNull();
-  },
-);
+test.each([
+  undefined,
+  null,
+  {},
+  { operation: "cycle", mode: "noise-cancellation" },
+  { operation: "set", mode: "future" },
+])("rejects invalid launch context %j", (context) => {
+  // Given the input supplied by this case
+  // When
+  const result = modeFromLaunchContext(context);
+  // Then
+  expect(result).toBeNull();
+});

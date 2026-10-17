@@ -17,16 +17,16 @@ Control AirPods and Beats listening modes (Off, Transparency, Adaptive, Noise Ca
 
 ## Commands
 
-| Command                           | What it does                                                                                    |
-| --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Set to Noise Cancellation**     | Switch to Noise Cancellation.                                                                   |
-| **Set to Transparency**           | Switch to Transparency.                                                                         |
-| **Set to Adaptive**               | Switch to Adaptive. Disabled by default.                                                        |
-| **Set to Off**                    | Turn noise control off. Disabled by default.                                                    |
-| **Cycle Listening Mode**          | Step through the modes you select in its preferences. Skips modes your device does not support. |
-| **Toggle Conversation Awareness** | Turn Conversation Awareness on or off. Requires a model that supports it.                       |
-| **Pods Status**                   | Show the current mode and Conversation Awareness state.                                         |
-| **Manage CLI**                    | Install, update, or repair the CLI. Each screen explains the next step and offers the action.   |
+| Command                           | What it does                                                                                              |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Set to Noise Cancellation**     | Switch to Noise Cancellation.                                                                             |
+| **Set to Transparency**           | Switch to Transparency.                                                                                   |
+| **Set to Adaptive**               | Switch to Adaptive. Disabled by default.                                                                  |
+| **Set to Off**                    | Turn noise control off. Disabled by default.                                                              |
+| **Cycle Listening Mode**          | Step through the listening modes you enable in its preferences. Skips modes your device does not support. |
+| **Toggle Conversation Awareness** | Turn Conversation Awareness on or off. Requires a model that supports it.                                 |
+| **Pods Status**                   | Refresh the subtitles with the confirmed listening mode and Conversation Awareness.                       |
+| **Manage CLI**                    | Install, update, or repair the CLI. Each screen explains the next step and offers the action.             |
 
 Control commands show a success toast while Raycast is open and a HUD when it is closed, for example when you use a hotkey.
 
@@ -35,7 +35,7 @@ Control commands show a success toast while Raycast is open and a HUD when it is
 Both commands are disabled by default because not every device supports them. If yours does, enable the command in Raycast's extension settings.
 
 - **Set to Adaptive** needs a model that supports Adaptive.
-- **Set to Off** needs Off to be enabled in your device settings. macOS lets you exclude Off from noise control.
+- **Set to Off** needs Off Listening Mode turned on in your device settings.
 
 ### See the current state at a glance
 
@@ -43,10 +43,10 @@ Both commands are disabled by default because not every device supports them. If
 
 ## Preferences
 
-| Preference                 | Command              | Description                                                                                                                         |
-| -------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **CLI Path**               | Extension            | Full path to the `pods-control` binary. Leave it empty to detect the CLI automatically. A set path overrides detection.             |
-| **Modes to Cycle Through** | Cycle Listening Mode | Checkboxes for Off, Transparency, Adaptive, and Noise Cancellation. Select at least two. Off and Adaptive are unchecked by default. |
+| Preference                 | Command              | Description                                                                                                                        |
+| -------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **CLI Path**               | Extension            | Full path to the `pods-control` binary. Leave it empty to detect the CLI automatically. A set path overrides detection.            |
+| **Modes to Cycle Through** | Cycle Listening Mode | Checkboxes for Off, Transparency, Adaptive, and Noise Cancellation. Enable at least two. Off and Adaptive are disabled by default. |
 
 ## Troubleshooting
 
@@ -58,20 +58,20 @@ Open **Manage CLI**. It detects unlinked or incomplete Homebrew installs and an 
 
 **Pods Status** shows **Not connected** when no AirPods or Beats are connected. Connect your device to your Mac. If several compatible devices are connected, disconnect the others. The extension does not choose between devices.
 
-### Adaptive or Conversation Awareness is unavailable
+### Adaptive or Conversation Awareness is not supported
 
-Both depend on your model and firmware. Check the [compatibility matrix](https://github.com/raulgg/pods-control/blob/HEAD/docs/compatibility.md). For Adaptive, turn on **Set to Adaptive**, include it in **Modes to Cycle Through**, or do both.
+Both depend on your model and firmware. Check the [compatibility matrix](https://github.com/raulgg/pods-control/blob/HEAD/docs/compatibility.md). For Adaptive, turn on **Set to Adaptive**, enable it in **Modes to Cycle Through**, or do both.
 
-### "Off mode was not applied"
+### "Off was not set"
 
-macOS did not switch your device to Off. macOS lets you leave Off out of your device's noise control options, and Pods Control can only use Off when it is allowed there.
+macOS did not switch your device to Off. Your device offers Off only when its Off Listening Mode setting is on.
 
-1. Open your AirPods or Beats settings on your Mac and allow Off in the noise control options.
-2. Turn on **Set to Off** in Raycast's extension settings, check Off in **Modes to Cycle Through**, or do both.
+1. Open your AirPods or Beats settings on your Mac and turn on Off Listening Mode.
+2. Turn on **Set to Off** in Raycast's extension settings, enable Off in **Modes to Cycle Through**, or do both.
 
-The CLI caches whether Off is allowed. See its [note on cached Off availability](https://github.com/raulgg/pods-control/blob/HEAD/docs/cli.md#cached-allow-off-availability).
+The CLI caches whether Off Listening Mode is on. See its [note on cached Off availability](https://github.com/raulgg/pods-control/blob/HEAD/docs/cli.md#cached-allow-off-availability).
 
-If you don't want to use Off, uncheck it in **Modes to Cycle Through** and disable **Set to Off**.
+If you don't want to use Off, disable it in **Modes to Cycle Through** and disable **Set to Off**.
 
 ### Commands stopped working after a macOS update
 

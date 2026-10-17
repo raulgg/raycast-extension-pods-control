@@ -236,7 +236,7 @@ test("upgrades a Homebrew-managed CLI", async () => {
   }
 });
 
-test("refuses to update a manual CLI", async () => {
+test("refuses to update a source-install CLI", async () => {
   // Given
   vi.useFakeTimers();
   try {
@@ -248,7 +248,7 @@ test("refuses to update a manual CLI", async () => {
         vi.mocked(detectCliSetup).mockResolvedValue(installedCliSetup());
       });
     vi.mocked(updateCliWithBrew).mockReset().mockResolvedValue(undefined);
-    vi.mocked(detectCliSetup).mockResolvedValue(cliSetup({ state: "manual-cli", cliPath: "/custom/cli" }));
+    vi.mocked(detectCliSetup).mockResolvedValue(cliSetup({ state: "source-cli", cliPath: "/custom/cli" }));
     // When
     const result = runCliInstallation("update");
     // Then

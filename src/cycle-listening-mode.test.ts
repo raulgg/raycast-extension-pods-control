@@ -69,13 +69,13 @@ test("falls back to a read-only refresh for a background launch without refresh 
 test("publishes coordinator state during a background launch without reading or cycling", async () => {
   // Given
   const launch = props(
-    { operation: "refresh-listening-mode-subtitle", mode: "anc", revision: "read-revision" },
+    { operation: "refresh-listening-mode-subtitle", mode: "noise-cancellation", revision: "read-revision" },
     LaunchType.Background,
   );
   // When
   await main(launch);
   // Then
-  expect(publishListeningModeSubtitle).toHaveBeenCalledWith("anc", "read-revision");
+  expect(publishListeningModeSubtitle).toHaveBeenCalledWith("noise-cancellation", "read-revision");
   expect(refreshListeningModeSubtitle).not.toHaveBeenCalled();
   expect(runWithCliGuard).not.toHaveBeenCalled();
   expect(runCycleListeningModeCommand).not.toHaveBeenCalled();

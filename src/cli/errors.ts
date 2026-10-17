@@ -42,8 +42,7 @@ export const ERROR_MESSAGES: Record<CliErrorCode, string> = {
   "no-op": "macOS did not confirm the change.",
   unsupported: "This feature is not supported by the connected device.",
   "read-error": "The CLI could not read status. Check that your AirPods or Beats are connected and try again.",
-  unavailable:
-    "Listening controls are unavailable. Select your AirPods or Beats as the audio output and check CLI compatibility.",
+  unavailable: "This feature is unavailable on your AirPods or Beats right now.",
   "state-uncertain": "The CLI could not confirm the final listening state.",
   "ambiguous-device": "Multiple compatible devices are connected. Disconnect all but one and try again.",
   "invalid-response": "The pods-control CLI returned an invalid response.",

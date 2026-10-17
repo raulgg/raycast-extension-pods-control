@@ -14,7 +14,7 @@ export const CLI_INSTALL_COMMAND = `brew install ${CLI_BREW_FORMULA}`;
 
 export const CLI_UPDATE_COMMAND = `brew upgrade ${CLI_BREW_FORMULA}`;
 
-export const CLI_MANUAL_UPDATE_COMMAND = `brew update\n${CLI_UPDATE_COMMAND}`;
+export const CLI_TERMINAL_UPDATE_COMMAND = `brew update\n${CLI_UPDATE_COMMAND}`;
 
 export const CLI_SOURCE_INSTALL_COMMAND = [
   `tag=$(curl -fsSL -o /dev/null -w '%{url_effective}' ${CLI_REPO_URL}/releases/latest)`,
