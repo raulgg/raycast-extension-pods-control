@@ -61,7 +61,7 @@ test("lists cycle preferences in device order with the current defaults", () => 
   expect(listed).toEqual([
     { name: "cycleOff", label: "Off", title: "Modes to Cycle Through", default: false },
     { name: "cycleTransparency", label: "Transparency", title: null, default: true },
-    { name: "cycleAdaptive", label: "Adaptive", title: null, default: true },
+    { name: "cycleAdaptive", label: "Adaptive", title: null, default: false },
     { name: "cycleAnc", label: "Noise Cancellation", title: null, default: true },
   ]);
 });

@@ -151,7 +151,7 @@
           "label": "Adaptive",
           "description": "Include Adaptive when cycling listening modes. Skipped automatically if the connected device does not support it.",
           "type": "checkbox",
-          "default": true,
+          "default": false,
           "required": false
         },
         {
