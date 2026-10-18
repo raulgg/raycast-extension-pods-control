@@ -24,18 +24,6 @@ const CLI_ERROR_CODES = [
   "ambiguous-device",
 ] as const;
 
-// Exit statuses defined by the pods-control CLI. Keep this table in sync with the CLI.
-const EXIT_CODE_ERRORS: Record<number, CliErrorCode> = {
-  1: "no-device",
-  2: "bad-args",
-  3: "no-op",
-  4: "unsupported",
-  5: "read-error",
-  6: "unavailable",
-  7: "state-uncertain",
-  8: "ambiguous-device",
-};
-
 export const ERROR_MESSAGES: Record<CliErrorCode, string> = {
   "not-installed": "The pods-control CLI is not installed.",
   "no-device": "Connect your AirPods or Beats to your Mac and try again.",
@@ -83,15 +71,17 @@ export class CliError extends Error {
   }
 }
 
-export function toErrorCode(
-  payloadError: string | undefined,
-  exitCode: number | string | null | undefined,
-): CliErrorCode {
+/**
+ * Classify a CLI failure from the JSON `error` token.
+ *
+ * The process exit status is not an input. The CLI owns those numbers and has
+ * renumbered them without changing the token, so a table here would disagree
+ * with older and newer builds. An unrecognized token stays `unknown`; callers
+ * still have the original string on the payload.
+ */
+export function toErrorCode(payloadError: string | undefined): CliErrorCode {
   if (payloadError && (CLI_ERROR_CODES as readonly string[]).includes(payloadError)) {
     return payloadError as CliErrorCode;
-  }
-  if (typeof exitCode === "number" && exitCode in EXIT_CODE_ERRORS) {
-    return EXIT_CODE_ERRORS[exitCode];
   }
   return "unknown";
 }

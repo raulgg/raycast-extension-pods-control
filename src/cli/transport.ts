@@ -120,6 +120,20 @@ function processFailureMessage(diagnostics: CliDiagnostics): string {
   return details ? `${base}\n\nCLI diagnostics:\n${details}` : base;
 }
 
+function boundedToken(payloadError: string): string {
+  const token = payloadError.trim();
+  if (token.length <= 80) return token;
+  return `${token.slice(0, 80)}…`;
+}
+
+function unknownTokenMessage(payloadError: string | undefined, diagnostics: CliDiagnostics | null): string {
+  const token = payloadError ? boundedToken(payloadError) : "";
+  const lead = token ? `The pods-control CLI reported "${token}".` : ERROR_MESSAGES.unknown;
+  if (!diagnostics) return lead;
+  const details = diagnosticsMessage(diagnostics);
+  return details ? `${lead}\n\nCLI diagnostics:\n${details}` : lead;
+}
+
 function invalidResponse(payload: CliPayload | null = null, diagnostics: CliDiagnostics | null = null): never {
   const details = diagnostics ? diagnosticsMessage(diagnostics) : "";
   const message = details ? `${ERROR_MESSAGES["invalid-response"]}\n\nCLI diagnostics:\n${details}` : undefined;
@@ -148,8 +162,8 @@ export async function runCli(args: string[]): Promise<CliPayload> {
       throw new CliError("unknown", payload, processFailureMessage(diagnostics), diagnostics);
     }
 
-    // Any non-empty malformed response is a schema failure. Do not let an
-    // unrelated exit status turn it into (for example) "unsupported".
+    // Any non-empty malformed response is a schema failure, not a
+    // classification. The exit status cannot repair it.
     if (rawResponse && !payload) invalidResponse(null, diagnostics);
 
     if (payload?.result === "no-op") {
@@ -159,21 +173,15 @@ export async function runCli(args: string[]): Promise<CliPayload> {
       throw new CliError("unknown", payload, processFailureMessage({ ...diagnostics, kind: "killed" }), diagnostics);
     }
     if (payload?.result === "error") {
-      const code = toErrorCode(payload.error, error.code);
-      const message = code === "unknown" ? processFailureMessage(diagnostics) : ERROR_MESSAGES[code];
+      const code = toErrorCode(payload.error);
+      const message = code === "unknown" ? unknownTokenMessage(payload.error, diagnostics) : ERROR_MESSAGES[code];
       throw new CliError(code, payload, message, diagnostics);
     }
 
-    // With no response at all, a documented numeric exit status is still the
-    // best available classification. Diagnostics preserve why the process
-    // failed without leaking the executable path or invocation arguments.
-    const code = toErrorCode(undefined, error.code);
-    throw new CliError(
-      code,
-      null,
-      code === "unknown" ? processFailureMessage(diagnostics) : ERROR_MESSAGES[code],
-      diagnostics,
-    );
+    // With no response at all there is no error token to classify. The exit
+    // status stays in diagnostics, which also omit the executable path and
+    // invocation arguments.
+    throw new CliError("unknown", null, processFailureMessage(diagnostics), diagnostics);
   }
 
   if (!payload) invalidResponse();
@@ -184,8 +192,8 @@ export async function runCli(args: string[]): Promise<CliPayload> {
     throw new CliError("unknown", payload, `The pods-control CLI was interrupted by signal ${payload.signal}.`);
   }
   if (payload.result !== "ok") {
-    const code = toErrorCode(payload.error, undefined);
-    throw new CliError(code, payload);
+    const code = toErrorCode(payload.error);
+    throw new CliError(code, payload, code === "unknown" ? unknownTokenMessage(payload.error, null) : undefined);
   }
 
   return payload;

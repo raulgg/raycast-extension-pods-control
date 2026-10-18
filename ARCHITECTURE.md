@@ -86,6 +86,7 @@ These describe existing behavior. Changing any of them needs its own behavior re
 **CLI client**
 
 - Writes use confirmed readback. A no-op that confirms the requested state is accepted. Preserve invalid-envelope checks and process-failure precedence.
+- Classify a CLI failure from the JSON `error` token. Keep the process exit status in diagnostics only. Do not map it to an error code; the CLI can renumber statuses without changing the token. An unrecognized token stays `unknown` and the toast names that token.
 - A custom CLI path overrides automatic discovery, including when it is invalid. Preserve search order, arguments, timeouts, buffer limits, and bounded diagnostics.
 
 **Locks and subtitles**
