@@ -9,7 +9,7 @@ import type { SubtitleRevision } from "../commands/launch-context";
 // The scheduled status refresh and commands run from hotkeys therefore overlap in separate
 // processes, and an older read can arrive after a newer change. Two mechanisms keep subtitles
 // matching the device:
-// - Operation locks run one CLI transaction at a time, so two quick Cycle presses advance two
+// - One operation lock runs one CLI transaction at a time, so two quick Cycle presses advance two
 //   modes and a change waits for a status read already in progress.
 // - Revisions drop late writes. Each operation records a fresh revision for its channel; a
 //   subtitle write only lands if its revision is still the latest, so a delayed background
@@ -41,12 +41,8 @@ const LOCK_TIMEOUT_SECONDS = "10";
 export const DEFAULT_COMMAND_SUBTITLE = "Pods Control";
 
 const METADATA_LOCK_NAME = "subtitle-metadata.lock";
-const GLOBAL_OPERATION_LOCK_NAME = "subtitle-operation.lock";
-const OPERATION_LOCK_NAMES: Record<SubtitleChannel, string> = {
-  "listening-mode": "subtitle-listening-mode-operation.lock",
-  "conversation-awareness": "subtitle-conversation-awareness-operation.lock",
-  status: "subtitle-status-operation.lock",
-};
+// One lock for every CLI transaction: control operations, feature refreshes, and status snapshots.
+const OPERATION_LOCK_NAME = "subtitle-operation.lock";
 const REVISION_STATE_NAME = "subtitle-metadata.json";
 
 function pathFor(name: string): string {
@@ -170,13 +166,9 @@ async function reserveSnapshotRevisionUnderMetadataLock(): Promise<SubtitleRevis
   });
 }
 
-async function withSubtitleOperationLock<T>(channel: SubtitleChannel, operation: () => Promise<T>): Promise<T> {
-  return withFileLock(GLOBAL_OPERATION_LOCK_NAME, () => withFileLock(OPERATION_LOCK_NAMES[channel], operation));
-}
-
 /** Reserve a durable revision for a delayed, read-free subtitle reset. */
 export async function reserveSubtitleRevisionForReset(channel: SubtitleChannel): Promise<SubtitleRevision> {
-  return withSubtitleOperationLock(channel, () => reserveSubtitleRevisionUnderMetadataLock(channel));
+  return withFileLock(OPERATION_LOCK_NAME, () => reserveSubtitleRevisionUnderMetadataLock(channel));
 }
 
 /**
@@ -187,7 +179,7 @@ export async function withSubtitleOperation<T>(
   channel: SubtitleChannel,
   operation: (revision: SubtitleRevision) => Promise<T>,
 ): Promise<T> {
-  return withSubtitleOperationLock(channel, async () => {
+  return withFileLock(OPERATION_LOCK_NAME, async () => {
     const revision = await reserveSubtitleRevisionUnderMetadataLock(channel);
     return operation(revision);
   });
@@ -200,7 +192,7 @@ export async function withSubtitleOperation<T>(
 export async function withSubtitleSnapshotOperation<T>(
   operation: (revision: SubtitleRevision) => Promise<T>,
 ): Promise<T> {
-  return withFileLock(GLOBAL_OPERATION_LOCK_NAME, async () => {
+  return withFileLock(OPERATION_LOCK_NAME, async () => {
     const revision = await reserveSnapshotRevisionUnderMetadataLock();
     return operation(revision);
   });
