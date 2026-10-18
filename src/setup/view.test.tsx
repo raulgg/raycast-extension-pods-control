@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 /// <reference lib="dom" />
 import { Clipboard, launchCommand, open } from "@raycast/api";
 import { act } from "react";

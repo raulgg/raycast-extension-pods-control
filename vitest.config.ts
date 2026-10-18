@@ -13,7 +13,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts"],
+          include: ["src/**/*.test.{ts,tsx}"],
           exclude: ["src/test/integration/**"],
           environment: "node",
         },
@@ -21,24 +21,8 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "component",
-          include: ["src/**/*.test.tsx"],
-          environment: "happy-dom",
-        },
-      },
-      {
-        extends: true,
-        test: {
           name: "integration",
-          include: ["src/test/integration/**/*.integration.test.ts"],
-          environment: "node",
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: "macos",
-          include: ["src/test/integration/**/*.macos.test.ts"],
+          include: ["src/test/integration/**/*.{integration,macos}.test.ts"],
           environment: "node",
         },
       },
