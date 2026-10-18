@@ -39,8 +39,9 @@ For an async failure, keep the promise in When and assert `rejects` in Then. Att
 
 - Call shared factories from `src/test/` inside the test (`const cli = installedCliSetup()`), never at module level.
 - Mocks reset after every test (`clearMocks`, `mockReset`, `restoreMocks`), so stub behavior in Given. A bare `vi.fn()` returns `undefined` after a reset. Reset mid-test only between steps of one workflow.
-- Register cleanup as soon as you acquire a resource, with `try/finally` or `onTestFinished`. Do not use `using`; keep one cleanup style.
-- Await pending installer prompts, Homebrew operations, and child processes before restoring timers or deleting directories, even after a failed assertion. Clearing mocks does not clear the installer's pending promises.
+- A factory that owns a resource (a process, temp directory, or lock file) returns an object with `[Symbol.asyncDispose]` or `[Symbol.dispose]`, and the test declares it with `await using` or `using`. Plain fixtures do not need one.
+- Other cleanup, such as stopping a process between two When steps, uses `try/finally` or `onTestFinished`, registered as soon as you acquire the resource.
+- Await pending installer prompts, Homebrew operations, and child processes before restoring timers or deleting directories, even after a failed assertion. No disposable owns the installer's module-level pending promises, and clearing mocks does not clear them.
 - `setupFiles` may verify mocks or logs, as `src/test/console.ts` does, but must not plant scenario state.
 
 ## What to assert
