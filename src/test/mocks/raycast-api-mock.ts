@@ -2,13 +2,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { createElement, type ReactNode } from "react";
 import { vi, type Mock } from "vitest";
-import type {
-  Alert,
-  Application,
-  LocalStorage as LocalStorageType,
-  Toast as ToastType,
-  PreferenceValues,
-} from "@raycast/api";
+import type { Alert, Application, Toast as ToastType, PreferenceValues } from "@raycast/api";
 
 export const confirmAlert: Mock<(options: Alert.Options) => Promise<boolean>> = vi.fn(async () => false);
 
@@ -31,7 +25,6 @@ export const LaunchType = {
 
 export const environment = {
   supportPath: join(tmpdir(), `pods-control-raycast-test-${process.pid}-${Math.random().toString(36).slice(2)}`),
-  entryPointName: "",
 };
 
 export const Keyboard = {
@@ -59,12 +52,6 @@ export const updateCommandMetadata: Mock<(metadata: { subtitle?: string | null }
   async () => {},
 );
 
-export const getFrontmostApplication: Mock<() => Promise<Application>> = vi.fn(async () => ({
-  name: "",
-  path: "",
-  bundleId: "",
-}));
-
 export const open: Mock<(target: string, application?: Application | string) => Promise<void>> = vi.fn(async () => {});
 
 export const showToast: Mock<(options: ToastType.Options) => Promise<ToastType>> = vi.fn(async (options) => ({
@@ -85,18 +72,6 @@ export const showHUD: Mock<(title: string) => Promise<void>> = vi.fn(async () =>
 export const closeMainWindow: Mock<
   (options?: { clearRootSearch?: boolean; popToRootType?: unknown }) => Promise<void>
 > = vi.fn(async () => {});
-
-export const LocalStorage: {
-  getItem: Mock<typeof LocalStorageType.getItem>;
-  setItem: Mock<typeof LocalStorageType.setItem>;
-  removeItem: Mock<typeof LocalStorageType.removeItem>;
-  clear: Mock<typeof LocalStorageType.clear>;
-} = {
-  getItem: vi.fn(async () => undefined),
-  setItem: vi.fn(async () => {}),
-  removeItem: vi.fn(async () => {}),
-  clear: vi.fn(async () => {}),
-};
 
 export const getPreferenceValues: Mock<<Values extends PreferenceValues = PreferenceValues>() => Values> = vi.fn(
   () => ({}) as never,
