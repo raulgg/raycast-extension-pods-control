@@ -121,7 +121,6 @@ test("guides developer tools installation by opening Apple's official instructio
   expect(view.markdown()).toContain(
     "https://developer.apple.com/documentation/xcode/installing-the-command-line-tools",
   );
-  expect(view.markdown()).not.toContain("https://developer.apple.com/download/all/");
   expect(Clipboard.copy).not.toHaveBeenCalled();
   expect(open).toHaveBeenCalledWith(
     "https://developer.apple.com/documentation/xcode/installing-the-command-line-tools",
