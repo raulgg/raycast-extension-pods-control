@@ -109,4 +109,4 @@ These describe existing behavior. Changing any of them needs its own behavior re
 
 ## Verification
 
-See [TESTING.md](TESTING.md) for the test projects, conventions, and the full command list. Raycast rendering, HUD fallback, Homebrew installation, and AirPods or Beats hardware are not covered by automated tests; check those manually against a distribution build with compatible hardware connected.
+See [TESTING.md](TESTING.md) for the test projects, conventions, and the commands to run before you finish. Raycast rendering, HUD fallback, Homebrew installation, and AirPods or Beats hardware are not covered by automated tests; check those manually against a distribution build with compatible hardware connected.

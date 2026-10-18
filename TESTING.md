@@ -1,17 +1,23 @@
 # Testing
 
-Conventions for this extension's Vitest suites. See [Environments](#environments) for what each test project can prove.
+How to write and run this extension's Vitest suites.
 
-## Shape
+## Rules
 
-Use top-level `test` and named `test.each` rows. ESLint rejects `describe`, `it`, suite hooks, namespace Vitest imports, and `test.concurrent` in `*.test.*` files. Module mocks and the console guard are file-scoped, so cases in one file stay sequential.
+1. One test is one workflow: setup, actions, and the assertions that prove it. Prefer fewer, longer tests.
+2. Expected values must not come from the code under test. See [What to assert](#what-to-assert).
+3. Each test builds its own state. No `describe`, hooks, or module-level state shared between tests.
+4. Use the lightest [environment](#environments) that can falsify the claim.
+5. Tests stay offline and in process: no Homebrew, public internet, real device, or Raycast window.
+6. No test-only code in production: no `_resetForTests` exports, `NODE_ENV` or `VITEST` branches, or parameters only tests pass. Would production keep it if every test were deleted?
+7. Keep the bar high. Do not add a test for a bug that cannot happen again. Coverage finds gaps; it is not a target.
 
-Mark each case with `// Given`, `// When`, and `// Then`. Given creates fixtures and declares dependency behavior. When calls the subject. Then checks an observable result. Repeat When/Then on the same objects for install, retry, disconnect, and lock journeys. Prefer fewer, longer tests when the checks belong to one workflow. A single assertion per test is not the goal.
+## Writing a test
 
-Names say the condition, the action, and the outcome. Table rows get names too.
+Use top-level `test` and named `test.each` rows. Names say the condition, the action, and the outcome. Mark each case with `// Given` (fixtures and stubs), `// When` (call the subject), and `// Then` (observable result). Repeat When/Then for a multi-step journey such as install, retry, or disconnect.
 
 ```ts
-test("returns the Homebrew path when the binary is there", () => {
+test("returns the Homebrew path when the CLI is there", () => {
   // Given
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
@@ -25,79 +31,62 @@ test("returns the Homebrew path when the binary is there", () => {
 });
 ```
 
-Both default locations are present in that priority case. Reversing search order must fail. Do not assert `CLI_SEARCH_PATHS[0]`.
+Both default locations exist, so reversing the search order fails the test. Asserting `CLI_SEARCH_PATHS[0]` would not.
 
-For async failures, keep the promise in When and assert rejection in Then. Attach the rejection matcher before advancing timers or releasing a deferred failure. For a synchronous throw, When can build a closure and Then use `toThrow`.
+For an async failure, keep the promise in When and assert `rejects` in Then. Attach the matcher before you advance timers or release a deferred failure.
 
 ## Isolation
 
-Each case supplies its own behavior. Shared helpers live under `src/test/` (`fixtures/`, `mocks/`, `console.ts`). Import them in the case and call the factory in Given, for example `const cli = installedCliSetup()`. Do not create a module-level `const installedCli = installedCliSetup()` that every test mutates. Do not share a suite-level React root or a leftover `cliPath` preference.
-
-If the next assertion needs the same toast, view, or installer promise, keep going in that case. Do not stash it on the module for the next `test()`.
-
-Register cleanup as soon as you acquire a resource. Use test-local `try/finally` or an explicitly called factory with `onTestFinished`. Do not add `using` / `Symbol.dispose` here. Only wrap an object when it owns a resource; a plain fixture does not need a disposable. Await pending installer prompts, brew operations, and child processes before restoring timers or deleting directories, including when an assertion already failed. The installer keeps module-level pending promises; clearing mocks does not clear them.
-
-`vitest.config.ts` enables `clearMocks`, `mockReset`, and `restoreMocks`. Scenario stubs belong in Given. A bare `vi.fn()` is undefined after reset. `vi.fn(implementation)` restores that implementation. Do not `mockReset` in the middle of a case unless that case is a multi-step workflow that needs a fresh stub between When blocks.
-
-Runner `setupFiles` may use hooks for mock or log verification. `src/test/console.ts` is the example. It must not plant scenario state: no temp CLI, no support directory, no default listening mode. That is the same hidden-setup rule as `beforeEach`.
+- Call shared factories from `src/test/` inside the test (`const cli = installedCliSetup()`), never at module level.
+- Mocks reset after every test (`clearMocks`, `mockReset`, `restoreMocks`), so stub behavior in Given. A bare `vi.fn()` returns `undefined` after a reset. Reset mid-test only between steps of one workflow.
+- Register cleanup as soon as you acquire a resource, with `try/finally` or `onTestFinished`. Do not use `using`; keep one cleanup style.
+- Await pending installer prompts, Homebrew operations, and child processes before restoring timers or deleting directories, even after a failed assertion. Clearing mocks does not clear the installer's pending promises.
+- `setupFiles` may verify mocks or logs, as `src/test/console.ts` does, but must not plant scenario state.
 
 ## What to assert
 
-Assert what a caller or user can observe: CLI arguments and paths, confirmed readback, toast style and actions, copied text, opened URLs, launched command names, subtitle strings, lock ownership, exit codes, and structured `CliError` fields.
+Assert what a caller or user observes: CLI arguments, confirmed states, toasts and their actions, copied text, opened URLs, launched commands, subtitles, lock ownership, exit codes, and `CliError` fields. Click actions and check where they lead. Write expected values as literals, not production constants such as `CLI_INSTALL_COMMAND`.
 
-Keep related checks in one workflow. A loading spinner that only exists between detect and install belongs in that journey, not in its own test.
+```ts
+expect(compareVersions(version, version)).toBe(0); // no: cannot fail
+expect(normalizeVersion(" v0.05.0 ")).toBe("0.5.0"); // yes: fails if parsing breaks
+```
 
-Independent expected values. An assertion is tautological when it cannot fail unless the implementation and the test change in lockstep. Typical failures:
+Do not assert:
 
-- Identity predicates: `expect(isSupported(SUPPORTED_MODE)).toBe(true)` when `isSupported` is `===`, `includes`, or `Set.has` of that constant. Keep normalization, negatives, prefix/suffix, and Error wrapping.
-- Self-equality: `expect(equal(status, status)).toBe(true)`.
-- Echoing a production helper (`listeningModeSubtitle(mode)` on both sides).
-- `expect(exportedConstant).toBe(theSameLiteral)` on the export itself. If the value is a public contract, assert it where a caller observes it.
-- Pinning instructional copy: setup guidance markdown, toast bodies, preference descriptions, action tooltips, HUD strings, usage hints (`Return here`, long Homebrew repair text). If the behavior matters, click the action or assert the structured contract.
-- A lone `not.toContain("Old Action")` after the name was deleted. Fine while deleting; do not commit it. Same for retired preference keys, command names, filenames, and selectors. Absence is useful when a live path could still show the thing: loading vs ready, connected vs not, enabled vs disabled.
+- A production helper on both sides, or a predicate on the constant it looks up.
+- An exported constant against its own literal.
+- Instructional copy: setup guidance, toast messages, preference descriptions, tooltips, HUD text.
+- Absence of something no code path can produce, such as a deleted action. Assert absence only where a live path could still show it: loading vs ready, connected vs not connected.
+- What TypeScript already enforces. Launch context still needs runtime checks.
 
-Do not retest what TypeScript already enforces. Boundary checks of untrusted launch context still matter; those values arrive at runtime.
-
-Click actions and check destinations. Copied install commands are literals in the test, not `CLI_INSTALL_COMMAND` reused from production.
-
-## Logs
-
-Declare expected `console.error` and `console.warn` calls with `expectConsoleError` and `expectConsoleWarning` from `src/test/console.ts`. Call the helper once per log, with the stable tag and the same error object the production code logs. Do not pin a long log message. There is no incidental-warning allowlist: if production logs, the test declares it. Unexpected error and warning logs fail the test. Do not spy on `console` in test files.
+Logs are part of the contract. Any `console.error` or `console.warn` you have not declared fails the test. Declare each one with `expectConsoleError(tag, error)` or `expectConsoleWarning(tag, error)`, passing the stable tag and the error object production logs.
 
 ## Environments
 
-Pick the lightest project that can falsify the claim. `npm test` runs all four. `npm run test:unit` is unit plus component. `npm run test:integration` is composed/process plus macOS.
+| Project       | Files                                           | Use when                                                 | Avoid when                                    |
+| ------------- | ----------------------------------------------- | -------------------------------------------------------- | --------------------------------------------- |
+| `unit`        | `src/**/*.test.ts`                              | Logic in Node, with Raycast and tools stubbed.           | The claim needs a process, a lock, or React.  |
+| `component`   | `src/**/*.test.tsx`                             | Actions, navigation, and React lifecycle in happy-dom.   | The claim is about native rendering or HUD.   |
+| `integration` | `src/test/integration/**/*.integration.test.ts` | Composed modules with fake CLI and supervisor processes. | A unit test can falsify the claim.            |
+| `macos`       | `src/test/integration/**/*.macos.test.ts`       | Real `lockf`, file descriptors, revision files.          | The claim is not about locks or process life. |
 
-| Project       | Files                                                             | What it can prove                                                                                                                       |
-| ------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `unit`        | Colocated `src/**/*.test.ts`, excluding `src/test/integration/**` | Node, Raycast and tools stubbed. No real CLI processes or OS locks.                                                                     |
-| `component`   | `src/**/*.test.tsx`                                               | happy-dom with the Raycast DOM adapter. Action titles, navigation, and React lifecycle. Not native List, Form, or HUD.                  |
-| `integration` | `src/test/integration/**/*.integration.test.ts`                   | Composed modules and temporary fake CLI/supervisor processes. Process fixtures need POSIX shell and bash.                               |
-| `macos`       | `src/test/integration/**/*.macos.test.ts`                         | Real `lockf`, file descriptors, revision files, and supervised processes. Every case uses `test.skipIf(process.platform !== "darwin")`. |
+Every `macos` case uses `test.skipIf(process.platform !== "darwin")`. Do not stub `lockf`, cut timeouts, or turn off file isolation to speed suites up. Real devices, native Raycast rendering, HUD fallback, and a real `brew install` are checked manually.
 
-Each file belongs to exactly one project. Keep file isolation on. Do not stub `lockf` in the macOS project or cut timeouts to make that suite faster.
+Run one file with its project, or a pair with `npm run test:unit` (`unit`, `component`) and `npm run test:integration` (`integration`, `macos`):
 
-happy-dom cannot prove native Raycast rendering or HUD fallback. Vitest cannot prove AirPods or Beats hardware or a live Homebrew install. Those stay manual.
+```sh
+npx --no-install vitest run --project unit src/cli/client.test.ts
+```
 
-## Stay in process
-
-Use the Raycast mock, local fake binaries, and in-process stubs. Automated tests do not install or upgrade the CLI with Homebrew, hit the public internet, change device settings, or open the Raycast window.
-
-## Commands
-
-Run from this directory:
+## Before you finish
 
 ```sh
 npm test
-npm run test:unit
-npm run test:integration
 npm run type-check
-npx --no-install prettier --check src .prettierrc eslint.config.js package.json tsconfig.json vitest.config.ts
 npm run lint
+npx --no-install prettier --check src .prettierrc eslint.config.js package.json tsconfig.json vitest.config.ts
 npm run build
-npm run test:coverage
 ```
 
-A shuffled run (`npx --no-install vitest run --sequence.shuffle --sequence.seed <n>`) is worth it after isolation changes. Record the seed.
-
-Keep the bar high for new tests, especially process and macOS ones. Do not add a `lockf` case for a typo, or a regression for a bug that cannot happen again, unless that flow is worth owning. Coverage is a gap finder. It is not a percentage target. Do not delete tests to keep a round number.
+After isolation changes, also run `npx --no-install vitest run --sequence.shuffle --sequence.seed <n>` and record the seed.

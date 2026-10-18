@@ -28,7 +28,7 @@ function mockInstalledAt(...paths: string[]) {
   }) as typeof accessSync);
 }
 
-test("returns the Homebrew path when the binary is there", () => {
+test("returns the Homebrew path when the CLI is there", () => {
   // Given
   mockGetPreferenceValues.mockReturnValue({} as never);
   mockStatSync.mockReturnValue({ isFile: () => true } as never);
