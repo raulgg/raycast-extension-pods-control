@@ -28,6 +28,8 @@ export interface ConversationAwarenessSubtitleRefreshContext {
   revision?: SubtitleRevision;
 }
 
+// For both refresh contexts: null means Pods Status confirmed no state, so the subtitle resets.
+// undefined means the context is unusable, so the command reads the device again.
 export function listeningModeFromSubtitleRefreshContext(context: unknown): ListeningModes | null | undefined {
   if (typeof context !== "object" || context === null) return undefined;
 

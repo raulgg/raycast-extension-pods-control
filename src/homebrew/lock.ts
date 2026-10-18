@@ -4,6 +4,8 @@ import { join } from "path";
 import { environment } from "@raycast/api";
 
 const LOCK_FILE_NAME = "cli-install.lock";
+// The lock file is passed as the 4th stdio entry, which the child sees as fd 3. Keep this in
+// step with `acquireBrewLock` and `runProcessWithLifetime`.
 const LOCK_FILE_DESCRIPTOR = 3;
 const LOCKF_PATH = "/usr/bin/lockf";
 const BASH_PATH = "/bin/bash";
@@ -73,6 +75,7 @@ if [ "$lock_status" -ne 0 ]; then
   exit "$lock_status"
 fi
 
+# set -m gives the command its own process group, so teardown can signal the whole group.
 set -m
 "$@" </dev/null &
 child_pid=$!
@@ -85,6 +88,7 @@ fi
 wait "$child_pid"
 status=$?
 if [ "$parent_gone" -ne 0 ] && [ "$status" -eq 158 ]; then
+  # 158 is 128 + SIGUSR1 (30 on macOS).
   # USR1 interrupts Bash's wait even though the trap has already started the
   # teardown. Reap the command after the private group is quiescent.
   wait "$child_pid"
@@ -116,6 +120,7 @@ export function openBrewLock(): number {
   return openSync(lockFilePath(), "a+", 0o600);
 }
 
+// lockf locks the descriptor and exits at once. The lock lasts until the caller closes it.
 export async function acquireBrewLock(lockFileDescriptor: number): Promise<void> {
   const lock = spawn(LOCKF_PATH, ["-s", "-t", "0", String(LOCK_FILE_DESCRIPTOR)], {
     stdio: ["ignore", "ignore", "ignore", lockFileDescriptor],
@@ -152,6 +157,7 @@ export async function isBrewOperationRunning(): Promise<boolean> {
   return new Promise((resolve, reject) => {
     execFile(command.file, command.args, { timeout: 5000 }, (error) => {
       if (!error) resolve(false);
+      // 75 is EX_TEMPFAIL: another process holds the lock.
       else if (error.code === 75) resolve(true);
       else reject(error);
     });

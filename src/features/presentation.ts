@@ -6,7 +6,8 @@ interface StatePresentation {
 }
 
 // Use a geometric-circle family for every listening mode so the symbols stay
-// the same visual size.
+// the same visual size. The Off symbol is a circle followed by U+0338 (combining
+// long solidus), which strikes it through; keep the combining character.
 export const LISTENING_MODE_PRESENTATION = {
   off: { label: "Off", symbol: "○̸" },
   transparency: { label: "Transparency", symbol: "○" },
