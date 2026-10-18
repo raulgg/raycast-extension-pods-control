@@ -5,6 +5,17 @@ import { join } from "path";
 import { environment, updateCommandMetadata } from "@raycast/api";
 import type { SubtitleRevision } from "../commands/launch-context";
 
+// Raycast runs each command in its own process, and a command can only set its own subtitle.
+// The scheduled status refresh and commands run from hotkeys therefore overlap in separate
+// processes, and an older read can arrive after a newer change. Two mechanisms keep subtitles
+// matching the device:
+// - Operation locks run one CLI transaction at a time, so two quick Cycle presses advance two
+//   modes and a change waits for a status read already in progress.
+// - Revisions drop late writes. Each operation records a fresh revision for its channel; a
+//   subtitle write only lands if its revision is still the latest, so a delayed background
+//   launch from an older read cannot overwrite a newer confirmed state.
+// The locks use lockf on a file descriptor, so macOS releases them if a process dies holding one.
+
 export type SubtitleChannel = "listening-mode" | "conversation-awareness" | "status";
 
 export interface CommandSubtitleOptions {
@@ -90,6 +101,7 @@ function setRevisionForChannel(
   channel: SubtitleChannel,
   revision: SubtitleRevision,
 ): RevisionState {
+  // A feature change also makes any pending status subtitle stale, so it takes the status revision too.
   if (channel === "listening-mode") return { ...state, listeningMode: revision, status: revision };
   if (channel === "conversation-awareness") return { ...state, conversationAwareness: revision, status: revision };
   return { ...state, status: revision };
@@ -200,6 +212,7 @@ async function writeSubtitleForRevision(
   revision: SubtitleRevision,
 ): Promise<void> {
   await withFileLock(METADATA_LOCK_NAME, async () => {
+    // A newer operation has claimed this channel since `revision` was recorded, so this write is stale.
     if (revisionForChannel(readRevisionState(), channel) !== revision) return;
     await updateCommandMetadata({ subtitle: subtitle ?? DEFAULT_COMMAND_SUBTITLE });
   });

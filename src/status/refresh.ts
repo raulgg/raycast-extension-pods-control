@@ -13,6 +13,9 @@ import type {
 } from "../commands/launch-context";
 import type { StatusSnapshot, ConversationAwarenessState, ListeningModes } from "../features/types";
 
+// Pods Status cannot set another command's subtitle, so it launches Cycle Listening Mode and
+// Toggle Conversation Awareness in the background with the states it read. The revision lets
+// them drop the update if a newer change landed first.
 async function dispatchSubtitleRefreshes(
   mode: ListeningModes | null,
   state: ConversationAwarenessState | null,
