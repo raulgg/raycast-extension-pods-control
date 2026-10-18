@@ -90,7 +90,7 @@ These describe existing behavior. Changing any of them needs its own behavior re
 
 **Locks and subtitles**
 
-- Control operations and status snapshots take the global operation lock. Feature operations also take their channel lock. Metadata writes compare durable revisions under the metadata lock.
+- Control operations, feature refreshes, and status snapshots take one operation lock, so only one CLI transaction runs at a time. Metadata writes compare durable revisions under the metadata lock.
 - Preserve lock filenames, revision JSON keys, lock acquisition order, and atomic revision writes. A delayed publication must not overwrite a newer operation.
 - A control command requests a status refresh after releasing its operation lock, including after a failed CLI action. A lock acquisition failure does not run the CLI.
 - The combined subtitle keeps its last confirmed value on transient or malformed total reads. Disconnection, unavailable features, and partial reads keep their separate outcomes. Feature subtitles can reset independently.

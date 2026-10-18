@@ -356,7 +356,7 @@ test.skipIf(process.platform !== "darwin")(
     vi.mocked(PodsControlCli.setListeningMode).mockReturnValue(setResult.promise);
     // When
     const controlPromise = runSetListeningModeCommand("noise-cancellation", { updateCycleSubtitle: true });
-    const lockPath = join(supportDirectory.path, "subtitle-listening-mode-operation.lock");
+    const lockPath = join(supportDirectory.path, "subtitle-operation.lock");
     try {
       await vi.waitFor(() => expect(PodsControlCli.setListeningMode).toHaveBeenCalledOnce());
       // Then
