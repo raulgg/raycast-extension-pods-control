@@ -20,7 +20,10 @@ const mockStatSync = vi.mocked(statSync);
 
 const mockGetPreferenceValues = vi.mocked(getPreferenceValues);
 
-function mockInstalledAt(...paths: string[]) {
+// The CLI Path preference is `cliPath`, and only `paths` exist as executables.
+function stubMachine({ cliPath, paths = [], isFile = true }: { cliPath?: string; paths?: string[]; isFile?: boolean }) {
+  mockGetPreferenceValues.mockReturnValue((cliPath === undefined ? {} : { cliPath }) as never);
+  mockStatSync.mockReturnValue({ isFile: () => isFile } as never);
   mockAccessSync.mockImplementation(((path: string) => {
     if (!paths.includes(path)) {
       throw new Error(`ENOENT: ${path}`);
@@ -30,10 +33,7 @@ function mockInstalledAt(...paths: string[]) {
 
 test("returns the Homebrew path when the CLI is there", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockInstalledAt("/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control");
+  stubMachine({ paths: ["/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control"] });
   // When
   const result = findCliPath();
   // Then
@@ -42,21 +42,16 @@ test("returns the Homebrew path when the CLI is there", () => {
 
 test("falls back to the next search path", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockInstalledAt("/usr/local/bin/pods-control");
+  stubMachine({ paths: ["/usr/local/bin/pods-control"] });
   // When
   const result = findCliPath();
   // Then
   expect(result).toBe("/usr/local/bin/pods-control");
 });
 
-test("returns null when the binary is nowhere to be found", () => {
+test("returns null when the CLI is nowhere to be found", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
+  stubMachine({});
   // When
   const result = findCliPath();
   // Then
@@ -65,11 +60,7 @@ test("returns null when the binary is nowhere to be found", () => {
 
 test("uses the CLI Path preference when set", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/pods-control" } as never);
-  mockInstalledAt("/custom/bin/pods-control");
+  stubMachine({ cliPath: "/custom/bin/pods-control", paths: ["/custom/bin/pods-control"] });
   // When
   const result = findCliPath();
   // Then
@@ -78,11 +69,7 @@ test("uses the CLI Path preference when set", () => {
 
 test("does not fall back to default paths when the CLI Path preference is invalid", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "/custom/bin/pods-control" } as never);
-  mockInstalledAt("/opt/homebrew/bin/pods-control");
+  stubMachine({ cliPath: "/custom/bin/pods-control", paths: ["/opt/homebrew/bin/pods-control"] });
   // When
   const result = findCliPath();
   // Then
@@ -91,12 +78,7 @@ test("does not fall back to default paths when the CLI Path preference is invali
 
 test("rejects a CLI Path preference that points at a directory", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "/opt/homebrew/bin" } as never);
-  mockInstalledAt("/opt/homebrew/bin");
-  mockStatSync.mockReturnValue({ isFile: () => false } as never);
+  stubMachine({ cliPath: "/opt/homebrew/bin", paths: ["/opt/homebrew/bin"], isFile: false });
   // When
   const result = findCliPath();
   // Then
@@ -105,11 +87,7 @@ test("rejects a CLI Path preference that points at a directory", () => {
 
 test("ignores a whitespace-only CLI Path preference", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
-  mockGetPreferenceValues.mockReturnValue({ cliPath: "   " } as never);
-  mockInstalledAt("/opt/homebrew/bin/pods-control");
+  stubMachine({ cliPath: "   ", paths: ["/opt/homebrew/bin/pods-control"] });
   // When
   const result = findCliPath();
   // Then
@@ -118,9 +96,7 @@ test("ignores a whitespace-only CLI Path preference", () => {
 
 test("finds the CLI inside a Homebrew keg that no search path exposes", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt("/opt/homebrew/opt/pods-control/bin/pods-control");
+  stubMachine({ paths: ["/opt/homebrew/opt/pods-control/bin/pods-control"] });
   // When
   const result = findBrewPrefixCli("/opt/homebrew/opt/pods-control");
   // Then
@@ -130,34 +106,26 @@ test("finds the CLI inside a Homebrew keg that no search path exposes", () => {
 });
 
 test.each([
-  { name: "the keg holds no executable", installed: [] as string[], isFile: true },
-  {
-    name: "the keg path is a directory",
-    installed: ["/opt/homebrew/opt/pods-control/bin/pods-control"],
-    isFile: false,
-  },
-])("reports no keg CLI when $name", ({ installed, isFile }) => {
+  { name: "the keg holds no executable", paths: [], isFile: true },
+  { name: "the keg path is a directory", paths: ["/opt/homebrew/opt/pods-control/bin/pods-control"], isFile: false },
+])("reports no keg CLI when $name", ({ paths, isFile }) => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => isFile } as never);
-  mockInstalledAt(...installed);
+  stubMachine({ paths, isFile });
   // When
   const result = findBrewPrefixCli("/opt/homebrew/opt/pods-control");
   // Then
   expect(result).toBeNull();
 });
 
-test("mirrors findCliPath", () => {
+test("reports whether the CLI is installed", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt();
+  stubMachine({});
   // When
   const result = isCliInstalled();
   // Then
   expect(result).toBe(false);
-  mockInstalledAt("/opt/homebrew/bin/pods-control");
   // When
+  stubMachine({ paths: ["/opt/homebrew/bin/pods-control"] });
   const result2 = isCliInstalled();
   // Then
   expect(result2).toBe(true);

@@ -94,7 +94,7 @@ const STATUS_NOTES: readonly NoteRule[] = [
 ];
 
 /** Update screens additionally explain an unreadable version, which is itself a reason to update. */
-export const UPDATE_NOTES: readonly NoteRule[] = [
+const UPDATE_NOTES: readonly NoteRule[] = [
   { when: (setup) => setup.versionStatus === "unknown", text: "Could not determine the CLI version." },
   ...STATUS_NOTES,
 ];

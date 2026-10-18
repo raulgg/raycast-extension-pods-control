@@ -1,6 +1,6 @@
 import { updateCommandMetadata } from "@raycast/api";
 import { expect, vi, test } from "vitest";
-import { DEFAULT_COMMAND_SUBTITLE, publishCommandSubtitle, resetCommandSubtitle } from "../../subtitles/coordination";
+import { publishCommandSubtitle, resetCommandSubtitle } from "../../subtitles/coordination";
 import { expectConsoleError } from "../console";
 import { createSupportDirectory } from "../fixtures/support-directory";
 
@@ -12,7 +12,7 @@ test.skipIf(process.platform !== "darwin")(
   "publishes a dynamic subtitle and then restores the manifest subtitle",
   async () => {
     // Given
-    createSupportDirectory();
+    using supportDirectory = createSupportDirectory();
     const options = { channel: "listening-mode" as const };
     // When
     await publishCommandSubtitle("◑ Adaptive", options);
@@ -21,13 +21,13 @@ test.skipIf(process.platform !== "darwin")(
     // When
     await resetCommandSubtitle(options);
     // Then
-    expect(mockUpdateCommandMetadata).toHaveBeenLastCalledWith({ subtitle: DEFAULT_COMMAND_SUBTITLE });
+    expect(mockUpdateCommandMetadata).toHaveBeenLastCalledWith({ subtitle: "Pods Control" });
   },
 );
 
 test.skipIf(process.platform !== "darwin")("restores the manifest subtitle when publication fails", async () => {
   // Given
-  createSupportDirectory();
+  using supportDirectory = createSupportDirectory();
   const options = { channel: "listening-mode" as const };
   const error = new Error("metadata failed");
   expectConsoleError("Failed to update the command subtitle", error);
@@ -36,12 +36,12 @@ test.skipIf(process.platform !== "darwin")("restores the manifest subtitle when 
   await publishCommandSubtitle("◑ Adaptive", options);
   // Then
   expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(1, { subtitle: "◑ Adaptive" });
-  expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(2, { subtitle: DEFAULT_COMMAND_SUBTITLE });
+  expect(mockUpdateCommandMetadata).toHaveBeenNthCalledWith(2, { subtitle: "Pods Control" });
 });
 
 test.skipIf(process.platform !== "darwin")("does not surface reset failures", async () => {
   // Given
-  createSupportDirectory();
+  using supportDirectory = createSupportDirectory();
   const options = { channel: "listening-mode" as const };
   const error = new Error("metadata failed");
   expectConsoleError("Failed to restore the command subtitle", error);

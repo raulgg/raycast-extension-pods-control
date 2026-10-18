@@ -50,11 +50,11 @@ test("lists cycle preferences in device order with the current defaults", () => 
   const preferences = command && "preferences" in command ? command.preferences : undefined;
 
   // When
-  const listed = preferences?.map(({ name, label, title, default: checked }) => ({
+  const listed = preferences?.map(({ name, label, title, default: enabledByDefault }) => ({
     name,
     label,
     title: title ?? null,
-    default: checked,
+    default: enabledByDefault,
   }));
 
   // Then

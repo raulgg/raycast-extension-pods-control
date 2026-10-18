@@ -1,6 +1,13 @@
 import { expect, test } from "vitest";
 import { cliSetup, installedCliSetup, outdatedCliSetup } from "../test/fixtures/cli-setup";
-import { screenMarkdown, setupScreen, UPDATE_NOTES } from "./screens";
+import { screenMarkdown, setupScreen } from "./screens";
+
+const VERSION_NOTES = [
+  "Could not determine the CLI version.",
+  "This install is newer than the known release.",
+  "Could not confirm the latest release.",
+  "Using the saved **CLI Path**.",
+];
 
 function paragraphs(setup: ReturnType<typeof cliSetup>): string[] {
   return setupScreen(setup).body.split("\n\n");
@@ -50,7 +57,7 @@ test.each([
   // When
   const body = setupScreen(setup).body;
   // Then
-  const shown = UPDATE_NOTES.map((rule) => rule.text).filter((text) => body.includes(text));
+  const shown = VERSION_NOTES.filter((text) => body.includes(text));
   expect(shown).toEqual([note]);
 });
 
@@ -102,20 +109,27 @@ test.each([
   expect(screen.actions[0]?.[0]).toEqual({ type: "copy", title: "Copy Link Command", content: command });
 });
 
-test("falls back to a generic keg label without a Homebrew prefix", () => {
+test("names the keg CLI path only when Homebrew reports a prefix", () => {
   // Given
-  const setup = cliSetup({ state: "needs-reinstall" });
+  const withPrefix = cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/pods-control" });
+  const withoutPrefix = cliSetup({ state: "needs-reinstall", brewCliPrefix: null });
   // When
-  const body = setupScreen(setup).body;
+  const named = setupScreen(withPrefix).body;
+  const generic = setupScreen(withoutPrefix).body;
   // Then
-  expect(body).toContain("binary at its Homebrew prefix.");
+  expect(named).toContain("`/opt/homebrew/opt/pods-control/bin/pods-control`");
+  expect(generic).not.toContain("/bin/pods-control`");
+  expect(generic).not.toContain("null");
 });
 
-test("renders the title as a heading above the body", () => {
+test.each([
+  { name: "a body", body: "Homebrew is not installed.", markdown: "# Install Homebrew\n\nHomebrew is not installed." },
+  { name: "an empty body", body: "", markdown: "# Install Homebrew" },
+])("renders the title as a heading above $name", ({ body, markdown }) => {
   // Given
-  const screen = setupScreen(cliSetup({ state: "needs-homebrew", brewPath: null }));
+  const screen = { title: "Install Homebrew", body, actions: [], isLoading: false };
   // When
-  const markdown = screenMarkdown(screen);
+  const result = screenMarkdown(screen);
   // Then
-  expect(markdown.startsWith("# Install Homebrew\n\nHomebrew is not installed.\n\n")).toBe(true);
+  expect(result).toBe(markdown);
 });

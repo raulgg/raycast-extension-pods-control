@@ -13,7 +13,7 @@ import { acquireBrewLock } from "./lock";
 import { runProcessWithLifetime, type ProcessLifetimeResult } from "./process-lifetime";
 
 vi.mock("./lock", () => ({
-  acquireBrewLock: vi.fn().mockResolvedValue(undefined),
+  acquireBrewLock: vi.fn(async () => undefined),
   brewLockSupervisorCommand: (file: string, args: string[]) => ({
     file: "/bin/bash",
     args: ["-c", "supervisor", "pods-control-brew-supervisor", file, ...args],
@@ -72,9 +72,6 @@ function mockProcessResult(overrides: Partial<ProcessLifetimeResult> = {}) {
 
 test("returns the Apple Silicon path when brew is there", () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew", "/usr/local/bin/brew");
   // When
   const result = findBrewPath();
@@ -84,9 +81,6 @@ test("returns the Apple Silicon path when brew is there", () => {
 
 test("falls back to the Intel path", () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/usr/local/bin/brew");
   // When
   const result = findBrewPath();
@@ -97,8 +91,6 @@ test("falls back to the Intel path", () => {
 test("returns null when brew is nowhere to be found", () => {
   // Given
   mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   // When
   const result = findBrewPath();
   // Then
@@ -108,8 +100,6 @@ test("returns null when brew is nowhere to be found", () => {
 test("rejects with a brew.sh hint when Homebrew is missing", async () => {
   // Given
   mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   // When
   const result = installCliWithBrew();
   // Then
@@ -119,10 +109,8 @@ test("rejects with a brew.sh hint when Homebrew is missing", async () => {
 
 test("runs brew install with the CLI formula", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
+  mockProcessResult();
   // When
   await installCliWithBrew();
   // Then
@@ -142,10 +130,8 @@ test("runs brew install with the CLI formula", async () => {
 
 test("runs brew upgrade with the CLI formula", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
+  mockProcessResult();
   // When
   await updateCliWithBrew();
   // Then
@@ -165,9 +151,6 @@ test("runs brew upgrade with the CLI formula", async () => {
 
 test("preserves multiline Homebrew recovery instructions", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   mockProcessResult({ exitCode: 1, stderr: "==> Fetching raulgg/tap\nError: some formula problem\n" });
   // When
@@ -178,9 +161,6 @@ test("preserves multiline Homebrew recovery instructions", async () => {
 
 test("rejects with the exec error message when stderr is empty", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   mockProcessResult({ exitCode: 1 });
   // When
@@ -191,9 +171,6 @@ test("rejects with the exec error message when stderr is empty", async () => {
 
 test("rejects with a timeout message when brew is killed", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   mockProcessResult({ timedOut: true, exitCode: 137 });
   // When
@@ -204,9 +181,6 @@ test("rejects with a timeout message when brew is killed", async () => {
 
 test("rejects directories at a Homebrew executable path", () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   vi.mocked(statSync).mockReturnValueOnce({ isFile: () => false } as ReturnType<typeof statSync>);
   // When
@@ -217,9 +191,6 @@ test("rejects directories at a Homebrew executable path", () => {
 
 test("does not query a prefix for an uninstalled formula", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(null, "", "git\nother/tap/pods-control\n");
   // When
   const result = await findBrewCliPrefix("/opt/homebrew/bin/brew");
@@ -230,9 +201,6 @@ test("does not query a prefix for an uninstalled formula", async () => {
 
 test("reads the tap stable version from brew info JSON", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(
     null,
     "",
@@ -257,9 +225,6 @@ test("reads the tap stable version from brew info JSON", async () => {
 
 test("returns null when brew info cannot run", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(new Error("brew info failed"), "Error: failed");
   // When
   const result = findBrewLatestVersion("/opt/homebrew/bin/brew");
@@ -272,9 +237,6 @@ test.each([
   { name: "an unlinked keg", linkedKeg: null, expected: false },
 ] as const)("reports $name from brew info JSON", async ({ linkedKeg, expected }) => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(
     null,
     "",
@@ -307,9 +269,6 @@ test.each([
   { name: "the output is not brew info JSON", error: null, stdout: "{not json" },
 ])("leaves the link status unknown when $name", async ({ error, stdout }) => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(error, error ? "Error: failed" : "", stdout);
   // When
   const result = await findBrewLinkedKeg("/opt/homebrew/bin/brew");
@@ -319,9 +278,6 @@ test.each([
 
 test("returns null when brew info JSON has no stable version", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFileResult(null, "", "{not json");
   // When
   const result = await findBrewLatestVersion("/opt/homebrew/bin/brew");
@@ -331,9 +287,6 @@ test("returns null when brew info JSON has no stable version", async () => {
 
 test("looks up the prefix of the installed formula from the correct tap", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockExecFile.mockImplementation((_file: string, args: string[], _options: unknown, callback: ExecCallback) => {
     callback(null, args[0] === "list" ? "raulgg/tap/pods-control" + "\n" : "/opt/homebrew/opt/pods-control\n", "");
   });
@@ -345,9 +298,6 @@ test("looks up the prefix of the installed formula from the correct tap", async 
 
 test("preserves Homebrew errors when brew exits with the lock status", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   mockProcessResult({ exitCode: 75, stderr: "Homebrew reported a lock conflict" });
   // When
@@ -358,9 +308,6 @@ test("preserves Homebrew errors when brew exits with the lock status", async () 
 
 test("explains lock contention before starting the installer", async () => {
   // Given
-  mockBrewAt();
-  mockAcquireBrewLock.mockResolvedValue(undefined);
-  mockProcessResult();
   mockBrewAt("/opt/homebrew/bin/brew");
   mockAcquireBrewLock.mockRejectedValue(Object.assign(new Error("lock busy"), { code: 75 }));
   // When

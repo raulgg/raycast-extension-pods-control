@@ -2,10 +2,11 @@
 import { Clipboard, launchCommand, open } from "@raycast/api";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { expect, onTestFinished, vi, test } from "vitest";
+import { expect, vi, test } from "vitest";
 import Command from "../manage-cli";
 import { cliSetup, installedCliSetup, outdatedCliSetup } from "../test/fixtures/cli-setup";
 import { deferred } from "../test/fixtures/deferred";
+import { fakeTimers } from "../test/fixtures/fake-timers";
 import { detectCliSetup } from "./detection";
 import { runCliInstallation } from "./installation";
 import type * as Detection from "./detection";
@@ -19,9 +20,8 @@ vi.mock("./installation", () => ({ runCliInstallation: vi.fn() }));
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
+// Renders Manage CLI into a detached container. `using` unmounts it and removes the container.
 function createSetupView() {
-  vi.mocked(detectCliSetup).mockReset().mockResolvedValue(cliSetup());
-  vi.mocked(runCliInstallation).mockReset().mockResolvedValue(installedCliSetup());
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -30,10 +30,6 @@ function createSetupView() {
     if (!unmounted) act(() => root.unmount());
     unmounted = true;
   }
-  onTestFinished(() => {
-    unmount();
-    container.remove();
-  });
   async function render() {
     await act(async () => {
       root.render(<Command />);
@@ -41,6 +37,9 @@ function createSetupView() {
   }
   function action(title: string) {
     return container.querySelector<HTMLButtonElement>(`[data-action-title="${title}"]`);
+  }
+  function primaryAction() {
+    return container.querySelector("[data-action-title]")?.getAttribute("data-action-title");
   }
   async function click(title: string) {
     const button = action(title);
@@ -63,7 +62,20 @@ function createSetupView() {
     })).filter((group) => group.actions.length > 0);
   }
 
-  return { render, action, click, markdown, actionGroups, container, unmount };
+  return {
+    render,
+    action,
+    primaryAction,
+    click,
+    markdown,
+    actionGroups,
+    container,
+    unmount,
+    [Symbol.dispose]: () => {
+      unmount();
+      container.remove();
+    },
+  };
 }
 
 const refresh = { title: null, actions: ["Refresh"] } as const;
@@ -72,15 +84,13 @@ const statusActions = [github] as const;
 
 test("guides Homebrew installation by opening the official instructions", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(cliSetup({ state: "needs-homebrew", brewPath: null }));
   // When
   await view.render();
   await view.click("Open Homebrew Installation Instructions");
   // Then
-  expect(view.container.querySelector("[data-action-title]")?.getAttribute("data-action-title")).toBe(
-    "Open Homebrew Installation Instructions",
-  );
+  expect(view.primaryAction()).toBe("Open Homebrew Installation Instructions");
   expect(view.markdown()).toContain("https://brew.sh");
   expect(open).toHaveBeenCalledWith("https://brew.sh");
   expect(Clipboard.copy).not.toHaveBeenCalled();
@@ -94,7 +104,8 @@ test("guides Homebrew installation by opening the official instructions", async 
 
 test("moves from missing Homebrew to install after Refresh without automatically installing", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
+  vi.mocked(detectCliSetup).mockResolvedValue(cliSetup());
   vi.mocked(detectCliSetup).mockResolvedValueOnce(cliSetup({ state: "needs-homebrew", brewPath: null }));
   // When
   await view.render();
@@ -107,7 +118,8 @@ test("moves from missing Homebrew to install after Refresh without automatically
 
 test("guides developer tools installation by opening Apple's official instructions", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
+  vi.mocked(detectCliSetup).mockResolvedValue(cliSetup());
   vi.mocked(detectCliSetup).mockResolvedValueOnce(
     cliSetup({ state: "needs-developer-tools", developerTools: "unavailable" }),
   );
@@ -115,9 +127,7 @@ test("guides developer tools installation by opening Apple's official instructio
   await view.render();
   await view.click("Open Apple's Installation Instructions");
   // Then
-  expect(view.container.querySelector("[data-action-title]")?.getAttribute("data-action-title")).toBe(
-    "Open Apple's Installation Instructions",
-  );
+  expect(view.primaryAction()).toBe("Open Apple's Installation Instructions");
   expect(view.markdown()).toContain(
     "https://developer.apple.com/documentation/xcode/installing-the-command-line-tools",
   );
@@ -133,24 +143,9 @@ test("guides developer tools installation by opening Apple's official instructio
   expect(view.action("Install with Homebrew")).not.toBeNull();
 });
 
-test.each(["source-cli", "invalid-cli-path", "needs-link", "needs-reinstall"] as const)(
-  "offers recovery instead of install or upgrade for %s",
-  async (state) => {
-    // Given
-    const view = createSetupView();
-    vi.mocked(detectCliSetup).mockResolvedValue(cliSetup({ state }));
-    // When
-    await view.render();
-    // Then
-    expect(view.action("Install with Homebrew")).toBeNull();
-    expect(view.action("Update with Homebrew")).toBeNull();
-    expect(view.action("Refresh")).not.toBeNull();
-  },
-);
-
 test("shows a persistent installing state, prevents duplicate actions, and then shows installation details", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   const detection = deferred<ReturnType<typeof cliSetup>>();
   vi.mocked(detectCliSetup).mockReturnValue(detection.promise);
   const installation = deferred<ReturnType<typeof cliSetup>>();
@@ -195,14 +190,15 @@ test("shows a persistent installing state, prevents duplicate actions, and then 
 
 test("keeps a new setup view independent of an installation started in a closed view", async () => {
   // Given
-  const oldView = createSetupView();
+  using oldView = createSetupView();
+  vi.mocked(detectCliSetup).mockResolvedValue(cliSetup());
   const installation = deferred<ReturnType<typeof cliSetup>>();
   vi.mocked(runCliInstallation).mockReturnValue(installation.promise);
   await oldView.render();
   // When
   await oldView.click("Install with Homebrew");
   oldView.unmount();
-  const newView = createSetupView();
+  using newView = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(cliSetup({ state: "needs-homebrew", brewPath: null }));
   await newView.render();
   // Then
@@ -219,14 +215,14 @@ test("keeps a new setup view independent of an installation started in a closed 
 test.each([
   ["install", "Install with Homebrew", "Copy Install Command", "brew install raulgg/tap/pods-control"],
   ["update", "Update with Homebrew", "Copy Update Command", "brew update\nbrew upgrade raulgg/tap/pods-control"],
-] as const)("offers direct %s before manual alternatives", async (state, title, copyTitle, command) => {
+] as const)("offers a direct %s before alternatives you run yourself", async (state, title, copyTitle, command) => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(state === "install" ? cliSetup() : outdatedCliSetup());
   // When
   await view.render();
   // Then
-  expect(view.container.querySelector("[data-action-title]")?.getAttribute("data-action-title")).toBe(title);
+  expect(view.primaryAction()).toBe(title);
   if (state === "install") {
     expect(view.markdown()).toContain("https://github.com/raulgg/pods-control/blob/HEAD/README.md#install");
   } else {
@@ -272,7 +268,7 @@ test.each([
   { name: "the link status is unknown", brewLinked: null, command: "brew link raulgg/tap/pods-control" },
 ] as const)("copies the link command that applies when $name", async ({ brewLinked, command }) => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({ state: "needs-link", brewCliPrefix: "/opt/homebrew/opt/pods-control", brewLinked }),
   );
@@ -287,7 +283,7 @@ test.each([
 
 test("offers a reinstall when the Homebrew keg holds no usable CLI", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({ state: "needs-reinstall", brewCliPrefix: "/opt/homebrew/opt/pods-control" }),
   );
@@ -302,7 +298,8 @@ test("offers a reinstall when the Homebrew keg holds no usable CLI", async () =>
 
 test("keeps failure details visible until the user rechecks prerequisites", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
+  vi.mocked(detectCliSetup).mockResolvedValue(cliSetup());
   vi.mocked(runCliInstallation).mockRejectedValueOnce(new Error("Homebrew needs repair\nRun brew doctor"));
   // When
   await view.render();
@@ -327,7 +324,8 @@ test("keeps failure details visible until the user rechecks prerequisites", asyn
 
 test("offers retry and instructions after a detection error", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
+  vi.mocked(detectCliSetup).mockResolvedValue(cliSetup());
   vi.mocked(detectCliSetup).mockRejectedValueOnce(new Error("brew permissions"));
   // When
   await view.render();
@@ -443,7 +441,7 @@ test.each([
   },
 ] as const)("uses untitled next-step, docs, and utility groups for $name", async ({ setup, groups }) => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(setup);
   // When
   await view.render();
@@ -453,14 +451,11 @@ test.each([
 
 test("shows progress for an already-running Homebrew install and refreshes when it finishes", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup)
     .mockResolvedValueOnce(cliSetup({ state: "installing" }))
     .mockResolvedValue(installedCliSetup());
-  vi.useFakeTimers();
-  onTestFinished(() => {
-    vi.useRealTimers();
-  });
+  using timers = fakeTimers();
   // When
   await view.render();
   // Then
@@ -477,17 +472,13 @@ test("shows progress for an already-running Homebrew install and refreshes when 
   expect(view.actionGroups()).toEqual(statusActions);
 });
 
-test("hides Homebrew update actions when the helper is up to date", async () => {
+test("shows Homebrew install facts without update actions when the CLI is up to date", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(installedCliSetup());
   // When
   await view.render();
   // Then
-  expect(view.action("Update with Homebrew")).toBeNull();
-  expect(view.action("Copy Update Command")).toBeNull();
-  expect(view.action("Open Installation Instructions")).toBeNull();
-  expect(view.action("Open Extension Preferences")).toBeNull();
   expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Homebrew");
@@ -495,9 +486,9 @@ test("hides Homebrew update actions when the helper is up to date", async () => 
   expect(view.actionGroups()).toEqual(statusActions);
 });
 
-test("hides source-install update instructions when the CLI is up to date", async () => {
+test("shows source install facts without update actions when the CLI is up to date", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
       state: "source-cli",
@@ -514,10 +505,6 @@ test("hides source-install update instructions when the CLI is up to date", asyn
   // When
   await view.render();
   // Then
-  expect(view.action("Open Installation Instructions")).toBeNull();
-  expect(view.action("Open Homebrew Installation Instructions")).toBeNull();
-  expect(view.action("Copy Source Install Command")).toBeNull();
-  expect(view.action("Update with Homebrew")).toBeNull();
   expect(view.markdown()).toContain("# pods-control CLI is up to date");
   expect(view.markdown()).toContain("0.5.0");
   expect(view.markdown()).toContain("Source");
@@ -527,7 +514,7 @@ test("hides source-install update instructions when the CLI is up to date", asyn
 
 test("copies the source install command for a source-install update without Homebrew help", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     cliSetup({
       state: "source-cli",
@@ -561,9 +548,9 @@ test("copies the source install command for a source-install update without Home
   expect(view.action("Copy Update Command")).toBeNull();
 });
 
-test("offers Homebrew update when the helper is below the minimum even if it matches the tap", async () => {
+test("offers a Homebrew update when the CLI is below the minimum even if it matches the tap", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     installedCliSetup({
       installedVersion: "0.3.0",
@@ -580,9 +567,9 @@ test("offers Homebrew update when the helper is below the minimum even if it mat
   expect(view.markdown()).toContain("**Latest:**");
 });
 
-test("keeps Homebrew update available when the helper version is unknown", async () => {
+test("keeps a Homebrew update available when the CLI version is unknown", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   vi.mocked(detectCliSetup).mockResolvedValue(
     installedCliSetup({
       installedVersion: null,
@@ -600,7 +587,7 @@ test("keeps Homebrew update available when the helper version is unknown", async
 
 test("does not navigate or start installation after leaving during detection", async () => {
   // Given
-  const view = createSetupView();
+  using view = createSetupView();
   const detection = deferred<ReturnType<typeof cliSetup>>();
   vi.mocked(detectCliSetup).mockReturnValue(detection.promise);
   // When

@@ -17,7 +17,7 @@ beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation((...args) => {
     warnings.push(args);
   });
-  // Fixture cleanup uses onTestFinished; reverse order runs those callbacks before this assertion.
+  // `using` fixtures dispose when the test body ends, and onTestFinished runs in reverse order, so cleanup runs before this check.
   onTestFinished(() => {
     try {
       expect(errors, "console.error calls must match the errors declared by this scenario").toEqual(expectedErrors);
