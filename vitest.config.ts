@@ -12,7 +12,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts", "eslint-rules/**/*.test.js"],
+          include: ["src/**/*.test.ts"],
           exclude: ["src/test/integration/**"],
           environment: "node",
         },

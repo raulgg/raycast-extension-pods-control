@@ -3,7 +3,6 @@ import { fileURLToPath } from "node:url";
 import raycastConfig from "@raycast/eslint-config";
 import { defineConfig } from "eslint/config";
 import importX from "eslint-plugin-import-x";
-import noTautologicalAbsence from "./eslint-rules/no-tautological-absence.js";
 
 // Keep these folder dependencies in sync with ARCHITECTURE.md.
 const dependencies = {
@@ -109,9 +108,7 @@ export default defineConfig([
   },
   {
     files: ["src/**/*.test.{ts,tsx}"],
-    plugins: { local: { rules: { "no-tautological-absence": noTautologicalAbsence } } },
     rules: {
-      "local/no-tautological-absence": "error",
       "no-restricted-imports": [
         "error",
         {
