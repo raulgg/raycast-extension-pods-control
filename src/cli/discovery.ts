@@ -19,6 +19,8 @@ function isExecutableFile(path: string): boolean {
   }
 }
 
+// A saved CLI Path replaces the search paths, even when it is invalid, so setup reports the bad
+// setting (`invalid-cli-path`) instead of quietly using a different CLI.
 export function findCliPath(): string | null {
   const customPath = getConfiguredCliPath();
   const candidates = customPath ? [customPath] : CLI_SEARCH_PATHS;

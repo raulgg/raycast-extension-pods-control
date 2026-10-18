@@ -24,6 +24,7 @@ const CLI_ERROR_CODES = [
   "ambiguous-device",
 ] as const;
 
+// Exit statuses defined by the pods-control CLI. Keep this table in sync with the CLI.
 const EXIT_CODE_ERRORS: Record<number, CliErrorCode> = {
   1: "no-device",
   2: "bad-args",

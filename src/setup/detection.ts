@@ -22,6 +22,7 @@ export type CliSetupState =
   | "needs-link"
   | "needs-reinstall"
   | "install"
+  // Any Homebrew install, including an up-to-date one. `setupNeedsUpdate` decides whether to offer an update.
   | "update";
 
 export type CliInstallationMethod = "homebrew" | "source";

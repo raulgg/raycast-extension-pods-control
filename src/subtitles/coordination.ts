@@ -63,9 +63,11 @@ function waitForLockf(
 }
 
 async function withOperatingSystemLock<T>(path: string, operation: () => Promise<T>): Promise<T> {
-  // Keep the descriptor open across awaits. The OS releases its lock on process exit.
+  // Given a descriptor, lockf takes a flock on it and exits at once. The lock lasts until this
+  // descriptor closes (or the process exits), so keep it open for the whole operation.
   const descriptor = openSync(path, "a+");
   try {
+    // The 4th stdio entry is fd 3 in the child, which is the "3" lockf receives.
     const lockf = spawn(LOCKF_PATH, ["-s", "-t", LOCK_TIMEOUT_SECONDS, "3"], {
       stdio: ["ignore", "ignore", "ignore", descriptor],
     });

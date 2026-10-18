@@ -6,6 +6,8 @@ import type { SetListeningModeLaunchContext } from "../commands/launch-context";
 import type { ListeningModes } from "../features/types";
 
 export async function setListeningMode(mode: ListeningModes): Promise<void> {
+  // A command can only set its own subtitle, so set commands run the change inside Cycle
+  // Listening Mode, which then shows the confirmed mode in its subtitle.
   const context: SetListeningModeLaunchContext = { operation: "set", mode };
 
   // Keep setup in the originating command. Delegating an installation can time
@@ -19,6 +21,8 @@ export async function setListeningMode(mode: ListeningModes): Promise<void> {
       });
     } catch (error) {
       console.warn("Could not delegate to Cycle Listening Mode; using the CLI fallback", error);
+      // Publishing here would set this command's subtitle, not Cycle's. The Pods Status
+      // refresh that follows every control operation updates Cycle instead.
       await runSetListeningModeCommand(mode, { updateCycleSubtitle: false });
     }
   });

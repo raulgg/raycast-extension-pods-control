@@ -109,6 +109,7 @@ async function runExclusiveBrewCommand(brewPath: string, args: string[], timeout
     try {
       await acquireBrewLock(lockFileDescriptor);
     } catch (error) {
+      // 75 is lockf's EX_TEMPFAIL: another process holds the lock.
       if ((error as { code?: number | string }).code === 75) {
         throw new Error(
           "A CLI installation or update is already running. Wait for it to finish, then choose the Refresh action.",
