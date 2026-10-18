@@ -138,7 +138,7 @@ test.each([1, 5, 6, 8, 70] as const)(
   },
 );
 
-test("keeps an unrecognized payload error when its exit status used to mean no-device", async () => {
+test("reports an unrecognized payload error as unknown when the CLI exits with status 1", async () => {
   // Given
   installCliAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };

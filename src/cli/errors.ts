@@ -71,14 +71,7 @@ export class CliError extends Error {
   }
 }
 
-/**
- * Classify a CLI failure from the JSON `error` token.
- *
- * The process exit status is not an input. The CLI owns those numbers and has
- * renumbered them without changing the token, so a table here would disagree
- * with older and newer builds. An unrecognized token stays `unknown`; callers
- * still have the original string on the payload.
- */
+/** Map the JSON `error` token to a CliErrorCode; the exit status is ignored because the CLI may renumber it. Unrecognized tokens are `unknown`. */
 export function toErrorCode(payloadError: string | undefined): CliErrorCode {
   if (payloadError && (CLI_ERROR_CODES as readonly string[]).includes(payloadError)) {
     return payloadError as CliErrorCode;
