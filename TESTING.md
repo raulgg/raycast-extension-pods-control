@@ -58,7 +58,7 @@ Do not assert:
 - A production helper on both sides, or a predicate on the constant it looks up.
 - An exported constant against its own literal.
 - Instructional copy: setup guidance, toast messages, preference descriptions, tooltips, HUD text.
-- Absence of something no code path can produce, such as a deleted action. Assert absence only where a live path could still show it: loading vs ready, connected vs not connected.
+- Absence of something no code path can produce, such as a deleted action. Assert absence only where a live path could still show it: loading vs ready, connected vs not connected. `npm run lint` rejects absence checks for text that no production file or `package.json` contains.
 - What TypeScript already enforces. Launch context still needs runtime checks.
 
 Logs are part of the contract. Any `console.error` or `console.warn` you have not declared fails the test. Declare each one with `expectConsoleError(tag, error)` or `expectConsoleWarning(tag, error)`, passing the stable tag and the error object production logs.
@@ -67,7 +67,7 @@ Logs are part of the contract. Any `console.error` or `console.warn` you have no
 
 | Kind        | Files                                                                                      | Use when                                                               | Avoid when                              |
 | ----------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------- |
-| Unit        | `src/**/*.test.ts`, `src/**/*.test.tsx`                                                    | One module's logic or view, with Raycast, the CLI, and the OS stubbed. | The claim needs a real process or lock. |
+| Unit        | `src/**/*.test.ts`, `src/**/*.test.tsx`, `eslint-rules/**/*.test.js`                       | One module's logic or view, with Raycast, the CLI, and the OS stubbed. | The claim needs a real process or lock. |
 | Integration | `src/test/integration/**/*.integration.test.ts`, `src/test/integration/**/*.macos.test.ts` | Composed modules talking to fake CLI and supervisor processes.         | A unit test can falsify the claim.      |
 
 The file name picks how a test runs:
@@ -89,7 +89,7 @@ npx --no-install vitest run src/cli/client.test.ts
 npm test
 npm run type-check
 npm run lint
-npx --no-install prettier --check src .prettierrc eslint.config.js package.json tsconfig.json vitest.config.ts
+npx --no-install prettier --check src eslint-rules .prettierrc eslint.config.js package.json tsconfig.json vitest.config.ts
 npm run build
 ```
 
