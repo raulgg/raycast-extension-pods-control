@@ -93,7 +93,7 @@ test.each(["missing", "unavailable"] as const)("reports %s developer tools befor
   expect(findBrewCliPrefix).not.toHaveBeenCalled();
 });
 
-test("detects a Homebrew CLI through symlinks, including a configured path", async () => {
+test("detects a Homebrew CLI through symlinks, including through the CLI Path", async () => {
   // Given
   stubMachine({
     cliPath: "/custom/cli",
@@ -125,7 +125,7 @@ test("does not update an unrelated Homebrew CLI when a custom CLI is active", as
   expect(result).toBe("source-cli");
 });
 
-test("reports a stale custom path before offering any installation", async () => {
+test("reports a stale CLI Path before offering any installation", async () => {
   // Given
   stubMachine({ configuredCliPath: "/old/cli" });
   // When

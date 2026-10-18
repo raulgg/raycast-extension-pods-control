@@ -78,7 +78,7 @@ test.each([
   ["fallback set", () => runSetListeningModeCommand("adaptive", { updateCycleSubtitle: false })],
   ["cycle", runCycleListeningModeCommand],
   ["toggle", runToggleConversationAwarenessCommand],
-] as const)("requests status synchronization after %s releases its lock", async (_name, run) => {
+] as const)("requests a status refresh after %s releases its lock", async (_name, run) => {
   // Given
   const toast = stubControlWorkflow();
   let locked = false;

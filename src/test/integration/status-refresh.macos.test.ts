@@ -189,7 +189,7 @@ test.skipIf(process.platform !== "darwin")(
 );
 
 test.skipIf(process.platform !== "darwin")(
-  "keeps a confirmed reading when the other read reports no device",
+  "keeps a confirmed reading when the other read reports Not connected",
   async () => {
     // Given
     using supportDirectory = createSupportDirectory();
@@ -203,7 +203,7 @@ test.skipIf(process.platform !== "darwin")(
 );
 
 test.skipIf(process.platform !== "darwin")(
-  "publishes disconnection when the other read fails transiently",
+  "publishes Not connected when the other read fails transiently",
   async () => {
     // Given
     using supportDirectory = createSupportDirectory();
@@ -216,7 +216,7 @@ test.skipIf(process.platform !== "darwin")(
   },
 );
 
-test.skipIf(process.platform !== "darwin")("stays silent when a background refresh detects disconnection", async () => {
+test.skipIf(process.platform !== "darwin")("stays silent when a background refresh finds Not connected", async () => {
   // Given
   using supportDirectory = createSupportDirectory();
   vi.mocked(PodsControlCli.getListeningMode).mockRejectedValue(new CliError("no-device"));
@@ -417,7 +417,7 @@ test.skipIf(process.platform !== "darwin")(
 );
 
 test.skipIf(process.platform !== "darwin")(
-  "reports disconnection as a normal status without error actions",
+  "reports Not connected as a normal status without error actions",
   async () => {
     // Given
     using supportDirectory = createSupportDirectory();
@@ -435,7 +435,7 @@ test.skipIf(process.platform !== "darwin")(
   },
 );
 
-test.skipIf(process.platform !== "darwin")("still reports subtitle dispatch failures when disconnected", async () => {
+test.skipIf(process.platform !== "darwin")("still reports subtitle dispatch failures when Not connected", async () => {
   // Given
   using supportDirectory = createSupportDirectory();
   const toast = makeToast();

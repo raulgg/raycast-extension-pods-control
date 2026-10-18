@@ -22,7 +22,7 @@ test("lists version facts and omits the path when the CLI location is unknown", 
   expect(facts).toBe("- **Version:** 0.5.0\n- **Install method:** Homebrew");
 });
 
-test("shows the latest version only on update screens", () => {
+test("shows the latest release only on update screens", () => {
   // Given / When
   const upToDate = setupScreen(installedCliSetup());
   const update = setupScreen(outdatedCliSetup());

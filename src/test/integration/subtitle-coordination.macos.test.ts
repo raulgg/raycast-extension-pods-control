@@ -105,7 +105,7 @@ test.skipIf(process.platform !== "darwin")(
 );
 
 test.skipIf(process.platform !== "darwin")(
-  "waits for a status read before allowing a control operation to reach the CLI",
+  "waits for a status refresh to read the device before a control operation reaches the CLI",
   async () => {
     // Given
     using supportDirectory = createSupportDirectory();
