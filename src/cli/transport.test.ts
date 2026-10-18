@@ -119,23 +119,51 @@ test.each([["read-error"], ["unavailable"], ["ambiguous-device"]] as const)(
   },
 );
 
-test.each([
-  [5, "read-error"],
-  [6, "unavailable"],
-  [8, "ambiguous-device"],
-] as const)("maps documented exit code %s without a JSON response", async (exitCode, code) => {
+test.each([1, 5, 6, 8, 70] as const)(
+  "reports exit status %s as an unknown failure when the CLI writes no JSON",
+  async (exitCode) => {
+    // Given
+    installCliAt("/opt/homebrew/bin/pods-control");
+    const error = new Error("Command failed") as Error & { code?: number };
+    error.code = exitCode;
+    mockExecFileResult(error, "");
+    // When
+    const result = runCli(["listening-mode", "get"]);
+    // Then
+    await expect(result).rejects.toBeInstanceOf(CliError);
+    await expect(result).rejects.toMatchObject({
+      code: "unknown",
+      diagnostics: { exitCode },
+    });
+  },
+);
+
+test("reports an unrecognized payload error as unknown when the CLI exits with status 1", async () => {
   // Given
   installCliAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
-  error.code = exitCode;
-  mockExecFileResult(error, "");
+  error.code = 1;
+  mockExecFileResult(error, JSON.stringify({ device: null, error: "firmware-busy", result: "error" }));
   // When
   const result = runCli(["listening-mode", "get"]);
   // Then
   await expect(result).rejects.toMatchObject({
-    name: "CliError",
-    code,
+    code: "unknown",
+    payload: expect.objectContaining({ error: "firmware-busy" }),
+    diagnostics: { exitCode: 1 },
   });
+  await expect(result).rejects.toThrow("firmware-busy");
+});
+
+test("names an unrecognized payload error after a zero exit code", async () => {
+  // Given
+  installCliAt("/opt/homebrew/bin/pods-control");
+  mockExecFileResult(null, JSON.stringify({ device: null, error: "firmware-busy", result: "error" }));
+  // When
+  const result = runCli(["listening-mode", "get"]);
+  // Then
+  await expect(result).rejects.toMatchObject({ code: "unknown" });
+  await expect(result).rejects.toThrow("firmware-busy");
 });
 
 test("maps a no-op result payload without an error token", async () => {
@@ -174,7 +202,7 @@ test("maps a no-op result payload after a zero exit code", async () => {
   });
 });
 
-test("rejects non-empty malformed JSON before interpreting an exit code", async () => {
+test("rejects non-empty malformed JSON whatever the exit status", async () => {
   // Given
   installCliAt("/opt/homebrew/bin/pods-control");
   const error = new Error("Command failed") as Error & { code?: number };
@@ -186,21 +214,6 @@ test("rejects non-empty malformed JSON before interpreting an exit code", async 
   await expect(result).rejects.toMatchObject({
     name: "CliError",
     code: "invalid-response",
-  });
-});
-
-test("throws an unknown CliError for undocumented exit codes", async () => {
-  // Given
-  installCliAt("/opt/homebrew/bin/pods-control");
-  const error = new Error("Command failed") as Error & { code?: number };
-  error.code = 70;
-  mockExecFileResult(error, "");
-  // When
-  const result = runCli(["listening-mode", "get"]);
-  // Then
-  await expect(result).rejects.toMatchObject({
-    name: "CliError",
-    code: "unknown",
   });
 });
 

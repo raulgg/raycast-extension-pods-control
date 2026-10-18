@@ -11,6 +11,7 @@ import type { CliPayload } from "./types";
 const CLI_TIMEOUT_MS = 15000;
 const CLI_MAX_BUFFER_BYTES = 64 * 1024;
 const CLI_DIAGNOSTIC_LIMIT = 4096;
+const CLI_TOKEN_LIMIT = 80;
 
 interface ExecError extends Error {
   code?: number | string | null;
@@ -63,10 +64,10 @@ function execFileAsync(file: string, args: string[], options: ExecFileOptions): 
   });
 }
 
-function boundedText(value: string): string {
+function boundedText(value: string, limit: number): string {
   const trimmed = value.trim();
-  if (trimmed.length <= CLI_DIAGNOSTIC_LIMIT) return trimmed;
-  return `${trimmed.slice(0, CLI_DIAGNOSTIC_LIMIT)}…`;
+  if (trimmed.length <= limit) return trimmed;
+  return `${trimmed.slice(0, limit)}…`;
 }
 
 function isMaxBufferError(error: ExecError): boolean {
@@ -88,7 +89,7 @@ function diagnosticsFor(
 ): CliDiagnostics {
   return {
     kind: processFailureKind(error, timedOut),
-    stderr: boundedText(stderr),
+    stderr: boundedText(stderr, CLI_DIAGNOSTIC_LIMIT),
     exitCode: typeof error.code === "number" || typeof error.code === "string" ? error.code : null,
     signal:
       typeof error.signal === "number" || typeof error.signal === "string"
@@ -107,6 +108,11 @@ function diagnosticsMessage(diagnostics: CliDiagnostics): string {
   return details.join("\n");
 }
 
+function withDiagnostics(lead: string, diagnostics: CliDiagnostics | null): string {
+  const details = diagnostics ? diagnosticsMessage(diagnostics) : "";
+  return details ? `${lead}\n\nCLI diagnostics:\n${details}` : lead;
+}
+
 function processFailureMessage(diagnostics: CliDiagnostics): string {
   const base =
     diagnostics.kind === "timeout"
@@ -116,13 +122,17 @@ function processFailureMessage(diagnostics: CliDiagnostics): string {
         : diagnostics.kind === "killed"
           ? `The pods-control CLI was terminated${diagnostics.signal === null ? "" : ` by ${diagnostics.signal}`}.`
           : ERROR_MESSAGES.unknown;
-  const details = diagnosticsMessage(diagnostics);
-  return details ? `${base}\n\nCLI diagnostics:\n${details}` : base;
+  return withDiagnostics(base, diagnostics);
+}
+
+function unknownTokenMessage(payloadError: string | undefined, diagnostics: CliDiagnostics | null): string {
+  const token = payloadError ? boundedText(payloadError, CLI_TOKEN_LIMIT) : "";
+  const lead = token ? `The pods-control CLI reported "${token}".` : ERROR_MESSAGES.unknown;
+  return withDiagnostics(lead, diagnostics);
 }
 
 function invalidResponse(payload: CliPayload | null = null, diagnostics: CliDiagnostics | null = null): never {
-  const details = diagnostics ? diagnosticsMessage(diagnostics) : "";
-  const message = details ? `${ERROR_MESSAGES["invalid-response"]}\n\nCLI diagnostics:\n${details}` : undefined;
+  const message = withDiagnostics(ERROR_MESSAGES["invalid-response"], diagnostics);
   throw new CliError("invalid-response", payload, message, diagnostics);
 }
 
@@ -148,8 +158,8 @@ export async function runCli(args: string[]): Promise<CliPayload> {
       throw new CliError("unknown", payload, processFailureMessage(diagnostics), diagnostics);
     }
 
-    // Any non-empty malformed response is a schema failure. Do not let an
-    // unrelated exit status turn it into (for example) "unsupported".
+    // A non-empty body that fails validation is invalid-response, not an
+    // unknown process failure.
     if (rawResponse && !payload) invalidResponse(null, diagnostics);
 
     if (payload?.result === "no-op") {
@@ -159,21 +169,15 @@ export async function runCli(args: string[]): Promise<CliPayload> {
       throw new CliError("unknown", payload, processFailureMessage({ ...diagnostics, kind: "killed" }), diagnostics);
     }
     if (payload?.result === "error") {
-      const code = toErrorCode(payload.error, error.code);
-      const message = code === "unknown" ? processFailureMessage(diagnostics) : ERROR_MESSAGES[code];
+      const code = toErrorCode(payload.error);
+      const message = code === "unknown" ? unknownTokenMessage(payload.error, diagnostics) : ERROR_MESSAGES[code];
       throw new CliError(code, payload, message, diagnostics);
     }
 
-    // With no response at all, a documented numeric exit status is still the
-    // best available classification. Diagnostics preserve why the process
-    // failed without leaking the executable path or invocation arguments.
-    const code = toErrorCode(undefined, error.code);
-    throw new CliError(
-      code,
-      null,
-      code === "unknown" ? processFailureMessage(diagnostics) : ERROR_MESSAGES[code],
-      diagnostics,
-    );
+    // With no response at all there is no error token to classify. The exit
+    // status stays in diagnostics, which also omit the executable path and
+    // invocation arguments.
+    throw new CliError("unknown", null, processFailureMessage(diagnostics), diagnostics);
   }
 
   if (!payload) invalidResponse();
@@ -184,8 +188,8 @@ export async function runCli(args: string[]): Promise<CliPayload> {
     throw new CliError("unknown", payload, `The pods-control CLI was interrupted by signal ${payload.signal}.`);
   }
   if (payload.result !== "ok") {
-    const code = toErrorCode(payload.error, undefined);
-    throw new CliError(code, payload);
+    const code = toErrorCode(payload.error);
+    throw new CliError(code, payload, code === "unknown" ? unknownTokenMessage(payload.error, null) : undefined);
   }
 
   return payload;
