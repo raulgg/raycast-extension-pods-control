@@ -41,14 +41,42 @@ vi.mock("./latest-release", () => ({
 
 vi.mock("./developer-tools", () => ({ detectDeveloperTools: vi.fn() }));
 
+interface Machine {
+  cliPath?: string | null;
+  configuredCliPath?: string | null;
+  brewPath?: string | null;
+  brewCliPrefix?: string | null;
+  developerTools?: "ready" | "missing" | "unavailable";
+  realPath?: string;
+}
+
+// Defaults: no CLI, Homebrew on Apple Silicon, no keg, ready developer tools, paths resolve to themselves.
+function stubMachine({
+  cliPath = null,
+  configuredCliPath = null,
+  brewPath = "/opt/homebrew/bin/brew",
+  brewCliPrefix = null,
+  developerTools = "ready",
+  realPath,
+}: Machine = {}) {
+  vi.mocked(findCliPath).mockReturnValue(cliPath);
+  vi.mocked(getConfiguredCliPath).mockReturnValue(configuredCliPath);
+  vi.mocked(findBrewPath).mockReturnValue(brewPath);
+  vi.mocked(findBrewCliPrefix).mockResolvedValue(brewCliPrefix);
+  vi.mocked(detectDeveloperTools).mockResolvedValue(developerTools);
+  if (realPath) vi.mocked(realpathSync).mockReturnValue(realPath);
+  else vi.mocked(realpathSync).mockImplementation((path) => String(path));
+}
+
+const HOMEBREW_CLI = {
+  cliPath: "/opt/homebrew/bin/pods-control",
+  brewCliPrefix: "/opt/homebrew/opt/pods-control",
+  realPath: "/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control",
+};
+
 test("offers installation when Homebrew and tools are ready", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
+  stubMachine();
   // When
   const result = (await detectCliSetup()).state;
   // Then
@@ -57,13 +85,7 @@ test("offers installation when Homebrew and tools are ready", async () => {
 
 test.each(["missing", "unavailable"] as const)("reports %s developer tools before trying brew", async (status) => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(detectDeveloperTools).mockResolvedValue(status);
+  stubMachine({ developerTools: status });
   // When
   const result = await detectCliSetup();
   // Then
@@ -71,64 +93,41 @@ test.each(["missing", "unavailable"] as const)("reports %s developer tools befor
   expect(findBrewCliPrefix).not.toHaveBeenCalled();
 });
 
-test("detects a Homebrew CLI through symlinks, including a configured path", async () => {
+test("detects a Homebrew CLI through symlinks, including through the CLI Path", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findCliPath).mockReturnValue("/custom/cli");
-  vi.mocked(getConfiguredCliPath).mockReturnValue("/custom/cli");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({
+    cliPath: "/custom/cli",
+    configuredCliPath: "/custom/cli",
+    brewCliPrefix: "/opt/homebrew/opt/pods-control",
+    realPath: "/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control",
+  });
   // When
   const result = (await detectCliSetup()).state;
   // Then
   expect(result).toBe("update");
 });
 
-test("does not upgrade a source CLI just because Homebrew is available", async () => {
+test("does not update a source-install CLI just because Homebrew is available", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
+  stubMachine({ cliPath: "/usr/local/bin/pods-control" });
   // When
   const result = (await detectCliSetup()).state;
   // Then
   expect(result).toBe("source-cli");
 });
 
-test("does not update an unrelated Homebrew CLI when a custom binary is active", async () => {
+test("does not update an unrelated Homebrew CLI when a custom CLI is active", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findCliPath).mockReturnValue("/custom/cli");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
+  stubMachine({ cliPath: "/custom/cli", brewCliPrefix: "/opt/homebrew/opt/pods-control" });
   // When
   const result = (await detectCliSetup()).state;
   // Then
   expect(result).toBe("source-cli");
 });
 
-test("reports a stale custom path before offering any installation", async () => {
+test("reports a stale CLI Path before offering any installation", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(getConfiguredCliPath).mockReturnValue("/old/cli");
+  stubMachine({ configuredCliPath: "/old/cli" });
   // When
   const result = (await detectCliSetup()).state;
   // Then
@@ -141,12 +140,7 @@ test.each([
   { name: "a link status Homebrew cannot report", linked: null },
 ] as const)("offers linking when the keg CLI exists behind $name", async ({ linked }) => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
+  stubMachine({ brewCliPrefix: "/opt/homebrew/opt/pods-control" });
   vi.mocked(findBrewPrefixCli).mockReturnValue("/opt/homebrew/opt/pods-control/bin/pods-control");
   vi.mocked(findBrewLinkedKeg).mockResolvedValue(linked);
   // When
@@ -158,12 +152,7 @@ test.each([
 
 test("asks for a reinstall when the Homebrew keg has no usable CLI", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
+  stubMachine({ brewCliPrefix: "/opt/homebrew/opt/pods-control" });
   vi.mocked(findBrewPrefixCli).mockReturnValue(null);
   // When
   const result = await detectCliSetup();
@@ -174,12 +163,7 @@ test("asks for a reinstall when the Homebrew keg has no usable CLI", async () =>
 
 test("surfaces broken Homebrew instead of treating it as a missing formula", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
+  stubMachine();
   vi.mocked(findBrewCliPrefix).mockRejectedValueOnce(new Error("Homebrew permissions need repair"));
   // When
   const result = detectCliSetup();
@@ -198,10 +182,7 @@ test.each([
   { name: "ready tools without Homebrew", brewPath: null, tools: "ready", state: "needs-homebrew" },
 ] as const)("prioritizes prerequisites for $name", async ({ brewPath, tools, state }) => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue(brewPath);
-  vi.mocked(detectDeveloperTools).mockResolvedValue(tools);
+  stubMachine({ brewPath, developerTools: tools });
   // When
   const setup = await detectCliSetup();
   // Then
@@ -211,12 +192,7 @@ test.each([
 
 test("reports an active install before checking prerequisites or querying Homebrew", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
+  stubMachine();
   vi.mocked(isBrewOperationRunning).mockResolvedValueOnce(true);
   // When
   const result = (await detectCliSetup()).state;
@@ -226,14 +202,9 @@ test("reports an active install before checking prerequisites or querying Homebr
   expect(findBrewCliPrefix).not.toHaveBeenCalled();
 });
 
-test("does not query helper versions when the CLI still needs installation", async () => {
+test("does not query CLI versions when the CLI still needs installation", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue(null);
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
+  stubMachine();
   // When
   await detectCliSetup();
   // Then
@@ -243,14 +214,9 @@ test("does not query helper versions when the CLI still needs installation", asy
   expect(findBrewLinkedKeg).not.toHaveBeenCalled();
 });
 
-test("reports a Homebrew helper as up to date when it matches the tap version", async () => {
+test("reports a Homebrew CLI as up to date when it matches the tap version", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({ ...HOMEBREW_CLI });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.5.0");
   // When
@@ -271,14 +237,9 @@ test("reports a Homebrew helper as up to date when it matches the tap version", 
   expect(findBrewLinkedKeg).not.toHaveBeenCalled();
 });
 
-test("reports a Homebrew helper update when the installed version is older than the tap", async () => {
+test("reports a Homebrew CLI update when the installed version is older than the tap", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({ ...HOMEBREW_CLI });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.3.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.5.0");
   // When
@@ -295,14 +256,9 @@ test("reports a Homebrew helper update when the installed version is older than 
   });
 });
 
-test("leaves latest unknown when brew info fails for a Homebrew helper", async () => {
+test("leaves latest unknown when brew info fails for a Homebrew CLI", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({ ...HOMEBREW_CLI });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue(null);
   // When
@@ -321,12 +277,7 @@ test("leaves latest unknown when brew info fails for a Homebrew helper", async (
 
 test("leaves latest unknown when the Homebrew latest check rejects", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({ ...HOMEBREW_CLI });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(findBrewLatestVersion).mockRejectedValue(new Error("brew info failed"));
   // When
@@ -345,12 +296,11 @@ test("leaves latest unknown when the Homebrew latest check rejects", async () =>
 
 test("treats a stale tap that matches an old install as up to date and below the minimum", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.3.0/bin/pods-control");
+  stubMachine({
+    cliPath: "/opt/homebrew/bin/pods-control",
+    brewCliPrefix: "/opt/homebrew/opt/pods-control",
+    realPath: "/opt/homebrew/Cellar/pods-control/0.3.0/bin/pods-control",
+  });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.3.0");
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.3.0");
   // When
@@ -369,10 +319,7 @@ test("treats a stale tap that matches an old install as up to date and below the
 
 test("reports a source-install CLI as up to date when it matches the GitHub release", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
+  stubMachine({ cliPath: "/usr/local/bin/pods-control", brewPath: null });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
     version: "0.5.0",
@@ -397,12 +344,7 @@ test("reports a source-install CLI as up to date when it matches the GitHub rele
 
 test("reports a source-install CLI update when GitHub has a newer release", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockImplementation((path) => String(path));
+  stubMachine({ cliPath: "/usr/local/bin/pods-control" });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.3.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
     version: "0.4.0",
@@ -425,10 +367,7 @@ test("reports a source-install CLI update when GitHub has a newer release", asyn
 
 test("leaves latest unknown when the GitHub latest-release check fails", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
+  stubMachine({ cliPath: "/usr/local/bin/pods-control", brewPath: null });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
     version: null,
@@ -449,12 +388,9 @@ test("leaves latest unknown when the GitHub latest-release check fails", async (
   });
 });
 
-test("treats a helper newer than the live GitHub release as up to date", async () => {
+test("treats a CLI newer than the live GitHub release as up to date", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/usr/local/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue(null);
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
+  stubMachine({ cliPath: "/usr/local/bin/pods-control", brewPath: null });
   vi.mocked(readInstalledVersion).mockResolvedValue("0.5.0");
   vi.mocked(fetchLatestGithubRelease).mockResolvedValue({
     version: "0.4.0",
@@ -474,14 +410,9 @@ test("treats a helper newer than the live GitHub release as up to date", async (
   });
 });
 
-test("keeps the Homebrew helper state when the version command fails", async () => {
+test("keeps the Homebrew CLI state when the version command fails", async () => {
   // Given
-  vi.mocked(findCliPath).mockReturnValue("/opt/homebrew/bin/pods-control");
-  vi.mocked(getConfiguredCliPath).mockReturnValue(null);
-  vi.mocked(findBrewPath).mockReturnValue("/opt/homebrew/bin/brew");
-  vi.mocked(findBrewCliPrefix).mockResolvedValue("/opt/homebrew/opt/pods-control");
-  vi.mocked(detectDeveloperTools).mockResolvedValue("ready");
-  vi.mocked(realpathSync).mockReturnValue("/opt/homebrew/Cellar/pods-control/0.5.0/bin/pods-control");
+  stubMachine({ ...HOMEBREW_CLI });
   vi.mocked(readInstalledVersion).mockResolvedValue(null);
   vi.mocked(findBrewLatestVersion).mockResolvedValue("0.4.0");
   // When

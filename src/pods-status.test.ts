@@ -17,7 +17,7 @@ function props(launchType: LaunchType = LaunchType.UserInitiated): LaunchProps {
   return { launchType, arguments: undefined } as unknown as LaunchProps;
 }
 
-test("uses the interactive CLI guard and shows feedback for a manual refresh", async () => {
+test("uses the interactive CLI guard and shows feedback for a user-initiated status refresh", async () => {
   // Given
   const launch = props();
   // When

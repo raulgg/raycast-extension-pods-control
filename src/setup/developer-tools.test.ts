@@ -19,14 +19,18 @@ function mockXcodeSelectUnavailable() {
   });
 }
 
-test("accepts a working selected Swift toolchain, including full Xcode", async () => {
-  // Given
-  vi.mocked(accessSync).mockReset();
-  mockXcodeSelectAvailable();
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(null, "", "");
+// Each command succeeds unless `failure` returns an error for it.
+function mockCommands(failure: (file: string, args: readonly string[]) => Error | null = () => null) {
+  exec.mockImplementation((file, args, _options, callback) => {
+    if (typeof callback === "function") callback(failure(String(file), Array.isArray(args) ? args : []), "", "");
     return {} as ReturnType<typeof execFile>;
   });
+}
+
+test("accepts a working selected Swift toolchain, including full Xcode", async () => {
+  // Given
+  mockXcodeSelectAvailable();
+  mockCommands();
   // When
   const result = await detectDeveloperTools();
   // Then
@@ -41,15 +45,10 @@ test("accepts a working selected Swift toolchain, including full Xcode", async (
   );
 });
 
-test("provides downloads recovery when xcode-select is absent", async () => {
+test("reports developer tools as unavailable when xcode-select is absent", async () => {
   // Given
-  vi.mocked(accessSync).mockReset();
-  mockXcodeSelectAvailable();
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
   mockXcodeSelectUnavailable();
+  mockCommands();
   // When
   const result = await detectDeveloperTools();
   // Then
@@ -57,18 +56,10 @@ test("provides downloads recovery when xcode-select is absent", async () => {
   expect(exec).not.toHaveBeenCalled();
 });
 
-test("does not invoke xcrun or open an installer without a selected toolchain", async () => {
+test("does not invoke xcrun without a selected toolchain", async () => {
   // Given
-  vi.mocked(accessSync).mockReset();
   mockXcodeSelectAvailable();
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
-  exec.mockImplementationOnce((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(new Error("no developer directory"), "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
+  mockCommands((file) => (file === "/usr/bin/xcode-select" ? new Error("no developer directory") : null));
   // When
   const result = await detectDeveloperTools();
   // Then
@@ -78,17 +69,8 @@ test("does not invoke xcrun or open an installer without a selected toolchain", 
 
 test("detects a broken Swift compiler even when xcode-select succeeds", async () => {
   // Given
-  vi.mocked(accessSync).mockReset();
   mockXcodeSelectAvailable();
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function")
-      callback(_file === "/usr/bin/xcrun" ? new Error("broken compiler") : null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
+  mockCommands((file) => (file === "/usr/bin/xcrun" ? new Error("broken compiler") : null));
   // When
   const result = await detectDeveloperTools();
   // Then
@@ -97,17 +79,8 @@ test("detects a broken Swift compiler even when xcode-select succeeds", async ()
 
 test("requires clang as well as Swift for the companion library", async () => {
   // Given
-  vi.mocked(accessSync).mockReset();
   mockXcodeSelectAvailable();
-  exec.mockImplementation((_file, _args, _options, callback) => {
-    if (typeof callback === "function") callback(null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
-  exec.mockImplementation((_file, args, _options, callback) => {
-    if (typeof callback === "function")
-      callback(Array.isArray(args) && args[0] === "clang" ? new Error("missing clang") : null, "", "");
-    return {} as ReturnType<typeof execFile>;
-  });
+  mockCommands((_file, args) => (args[0] === "clang" ? new Error("missing clang") : null));
   // When
   const result = await detectDeveloperTools();
   // Then

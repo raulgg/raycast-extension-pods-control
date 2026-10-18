@@ -1,9 +1,10 @@
 import { launchCommand, LaunchType } from "@raycast/api";
 import { expect, vi, test } from "vitest";
 import { isCliInstalled } from "../cli/discovery";
-import { CYCLE_LISTENING_MODE_COMMAND_NAME } from "../commands/names";
 import { promptForCliInstallation } from "../setup/installation";
 import { expectConsoleWarning } from "../test/console";
+import { deferred } from "../test/fixtures/deferred";
+import { fakeTimers } from "../test/fixtures/fake-timers";
 import { setListeningMode } from "./delegate-listening-mode";
 import { runSetListeningModeCommand } from "./listening-mode";
 
@@ -19,14 +20,12 @@ const mockLaunchCommand = vi.mocked(launchCommand);
 
 test("delegates a fixed set to Cycle with typed context", async () => {
   // Given
-  mockLaunchCommand.mockReset().mockResolvedValue(undefined);
   vi.mocked(isCliInstalled).mockReturnValue(true);
-  vi.mocked(promptForCliInstallation).mockReset().mockResolvedValue(undefined);
   // When
   await setListeningMode("adaptive");
   // Then
   expect(mockLaunchCommand).toHaveBeenCalledWith({
-    name: CYCLE_LISTENING_MODE_COMMAND_NAME,
+    name: "cycle-listening-mode",
     type: LaunchType.UserInitiated,
     context: { operation: "set", mode: "adaptive" },
   });
@@ -36,9 +35,7 @@ test("delegates a fixed set to Cycle with typed context", async () => {
 
 test("uses the guarded CLI workflow when Cycle cannot be launched", async () => {
   // Given
-  mockLaunchCommand.mockReset().mockResolvedValue(undefined);
   vi.mocked(isCliInstalled).mockReturnValue(true);
-  vi.mocked(promptForCliInstallation).mockReset().mockResolvedValue(undefined);
   const error = new Error("disabled");
   expectConsoleWarning("Could not delegate to Cycle Listening Mode; using the CLI fallback", error);
   mockLaunchCommand.mockRejectedValue(error);
@@ -53,43 +50,32 @@ test.each(["noise-cancellation", "transparency", "adaptive", "off"] as const)(
   "owns missing-CLI setup for %s without delegating or starting a second installer",
   async (mode) => {
     // Given
-    mockLaunchCommand.mockReset().mockResolvedValue(undefined);
+    using timers = fakeTimers();
+    vi.mocked(isCliInstalled).mockReturnValue(false);
+    const installation = deferred<void>();
+    vi.mocked(promptForCliInstallation).mockReturnValue(installation.promise);
+    // When
+    const running = setListeningMode(mode);
+    await vi.advanceTimersByTimeAsync(6000);
+    // Then
+    expect(promptForCliInstallation).toHaveBeenCalledOnce();
+    expect(mockLaunchCommand).not.toHaveBeenCalled();
+    expect(runSetListeningModeCommand).not.toHaveBeenCalled();
+    // When
     vi.mocked(isCliInstalled).mockReturnValue(true);
-    vi.mocked(promptForCliInstallation).mockReset().mockResolvedValue(undefined);
-    vi.useFakeTimers();
-    try {
-      vi.mocked(isCliInstalled).mockReturnValue(false);
-      let finishInstallation!: () => void;
-      vi.mocked(promptForCliInstallation).mockReturnValue(
-        new Promise<void>((resolve) => {
-          finishInstallation = resolve;
-        }),
-      );
-      // When
-      const running = setListeningMode(mode);
-      await vi.advanceTimersByTimeAsync(6000);
-      // Then
-      expect(promptForCliInstallation).toHaveBeenCalledOnce();
-      expect(mockLaunchCommand).not.toHaveBeenCalled();
-      expect(runSetListeningModeCommand).not.toHaveBeenCalled();
-      vi.mocked(isCliInstalled).mockReturnValue(true);
-      finishInstallation();
-      // When
-      await running;
-      // Then
-      expect(mockLaunchCommand).not.toHaveBeenCalled();
-      expect(runSetListeningModeCommand).not.toHaveBeenCalled();
-      // When
-      await setListeningMode(mode);
-      // Then
-      expect(mockLaunchCommand).toHaveBeenCalledExactlyOnceWith({
-        name: CYCLE_LISTENING_MODE_COMMAND_NAME,
-        type: LaunchType.UserInitiated,
-        context: { operation: "set", mode },
-      });
-      expect(promptForCliInstallation).toHaveBeenCalledOnce();
-    } finally {
-      vi.useRealTimers();
-    }
+    installation.resolve();
+    await running;
+    // Then
+    expect(mockLaunchCommand).not.toHaveBeenCalled();
+    expect(runSetListeningModeCommand).not.toHaveBeenCalled();
+    // When
+    await setListeningMode(mode);
+    // Then
+    expect(mockLaunchCommand).toHaveBeenCalledExactlyOnceWith({
+      name: "cycle-listening-mode",
+      type: LaunchType.UserInitiated,
+      context: { operation: "set", mode },
+    });
+    expect(promptForCliInstallation).toHaveBeenCalledOnce();
   },
 );

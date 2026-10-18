@@ -155,7 +155,7 @@ test("treats a confirmed Conversation Awareness no-op as success", async () => {
   await expect(result).resolves.toBe("on");
 });
 
-test("rejects unknown Conversation Awareness state", async () => {
+test("rejects an unknown state returned after setting Conversation Awareness", async () => {
   // Given
   mockRunCli.mockResolvedValue({ result: "ok", device: "AirPods", conversationAwareness: "automatic" });
   // When

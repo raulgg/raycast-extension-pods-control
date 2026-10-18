@@ -2,7 +2,7 @@ import { launchCommand, open, showToast } from "@raycast/api";
 import { expect, vi, test } from "vitest";
 import { openCliSetup } from "./navigation";
 
-test("offers manual instructions if the setup command is disabled, without retrying the launch", async () => {
+test("offers installation instructions if the setup command is disabled, without retrying the launch", async () => {
   // Given
   vi.mocked(launchCommand).mockRejectedValueOnce(new Error("command disabled"));
   // When

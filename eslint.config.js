@@ -109,6 +109,8 @@ export default defineConfig([
   {
     files: ["src/**/*.test.{ts,tsx}"],
     rules: {
+      // `using fixture = ...` keeps a resource alive without reading the variable.
+      "@typescript-eslint/no-unused-vars": ["error", { ignoreUsingDeclarations: true }],
       "no-restricted-imports": [
         "error",
         {
