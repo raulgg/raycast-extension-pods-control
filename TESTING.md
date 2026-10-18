@@ -7,7 +7,7 @@ How to write and run this extension's Vitest suites.
 1. One test is one workflow: setup, actions, and the assertions that prove it. Prefer fewer, longer tests.
 2. Expected values must not come from the code under test. See [What to assert](#what-to-assert).
 3. Each test builds its own state. No `describe`, hooks, or module-level state shared between tests.
-4. Use the lightest [environment](#environments) that can falsify the claim.
+4. Write a unit test unless the claim needs a real process or lock. See [Kinds of test](#kinds-of-test).
 5. Tests stay offline and in process: no Homebrew, public internet, real device, or Raycast window.
 6. No test-only code in production: no `_resetForTests` exports, `NODE_ENV` or `VITEST` branches, or parameters only tests pass. Would production keep it if every test were deleted?
 7. Keep the bar high. Do not add a test for a bug that cannot happen again. Coverage finds gaps; it is not a target.
@@ -63,21 +63,24 @@ Do not assert:
 
 Logs are part of the contract. Any `console.error` or `console.warn` you have not declared fails the test. Declare each one with `expectConsoleError(tag, error)` or `expectConsoleWarning(tag, error)`, passing the stable tag and the error object production logs.
 
-## Environments
+## Kinds of test
 
-| Project       | Files                                           | Use when                                                 | Avoid when                                    |
-| ------------- | ----------------------------------------------- | -------------------------------------------------------- | --------------------------------------------- |
-| `unit`        | `src/**/*.test.ts`                              | Logic in Node, with Raycast and tools stubbed.           | The claim needs a process, a lock, or React.  |
-| `component`   | `src/**/*.test.tsx`                             | Actions, navigation, and React lifecycle in happy-dom.   | The claim is about native rendering or HUD.   |
-| `integration` | `src/test/integration/**/*.integration.test.ts` | Composed modules with fake CLI and supervisor processes. | A unit test can falsify the claim.            |
-| `macos`       | `src/test/integration/**/*.macos.test.ts`       | Real `lockf`, file descriptors, revision files.          | The claim is not about locks or process life. |
+| Kind        | Files                                                                                      | Use when                                                               | Avoid when                              |
+| ----------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------- |
+| Unit        | `src/**/*.test.ts`, `src/**/*.test.tsx`                                                    | One module's logic or view, with Raycast, the CLI, and the OS stubbed. | The claim needs a real process or lock. |
+| Integration | `src/test/integration/**/*.integration.test.ts`, `src/test/integration/**/*.macos.test.ts` | Composed modules talking to fake CLI and supervisor processes.         | A unit test can falsify the claim.      |
 
-Every `macos` case uses `test.skipIf(process.platform !== "darwin")`. Do not stub `lockf`, cut timeouts, or turn off file isolation to speed suites up. Real devices, native Raycast rendering, HUD fallback, and a real `brew install` are checked manually.
+The file name picks how a test runs:
 
-Run one file with its project, or a pair with `npm run test:unit` (`unit`, `component`) and `npm run test:integration` (`integration`, `macos`):
+- `.test.ts` runs in Node. `.test.tsx` runs in happy-dom so it can render views; it still cannot prove native Raycast rendering or HUD fallback.
+- `.macos.test.ts` is for integration tests that need real `lockf`, file descriptors, or revision files. Every case uses `test.skipIf(process.platform !== "darwin")`. Do not stub `lockf`, cut timeouts, or turn off file isolation to speed it up.
+
+Real devices, native Raycast rendering, HUD fallback, and a real `brew install` are checked manually.
+
+Run one kind with `npm run test:unit` or `npm run test:integration`, or one file by its path:
 
 ```sh
-npx --no-install vitest run --project unit src/cli/client.test.ts
+npx --no-install vitest run src/cli/client.test.ts
 ```
 
 ## Before you finish
