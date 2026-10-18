@@ -77,7 +77,7 @@ test.each([
   { name: "an older install needs an update", installed: "0.3.0", latest: "0.4.0", status: "update-available" },
   { name: "a newer install is up to date", installed: "0.5.0", latest: "0.4.0", status: "up-to-date" },
   { name: "a missing installed version is unknown", installed: null, latest: "0.4.0", status: "unknown" },
-  { name: "a missing latest version is unknown", installed: "0.4.0", latest: null, status: "unknown" },
+  { name: "a missing latest release is unknown", installed: "0.4.0", latest: null, status: "unknown" },
   { name: "unusable versions are unknown", installed: "latest", latest: "0.4.0", status: "unknown" },
 ] as const)("$name", ({ installed, latest, status }) => {
   // Given

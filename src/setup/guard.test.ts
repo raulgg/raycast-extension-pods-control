@@ -34,7 +34,6 @@ test("runs the action when the CLI is installed", async () => {
 
 test("offers setup without running the action, even if installation succeeds", async () => {
   // Given
-  mockIsCliInstalled.mockReturnValue(true);
   mockIsCliInstalled.mockReturnValue(false);
   const perform = vi.fn();
   const onUnavailable = vi.fn().mockResolvedValue(undefined);

@@ -1,15 +1,13 @@
-import { expect, onTestFinished, vi, test } from "vitest";
+import { expect, vi, test } from "vitest";
 import { fetchLatestGithubRelease } from "./latest-release";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
+// `unstubGlobals` in vitest.config.ts restores fetch after each test.
 function mockFetch(implementation: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>) {
   vi.stubGlobal("fetch", vi.fn(implementation));
-  onTestFinished(() => {
-    vi.unstubAllGlobals();
-  });
 }
 
 test("returns the GitHub tag when the latest release is available", async () => {

@@ -19,9 +19,7 @@ Use top-level `test` and named `test.each` rows. Names say the condition, the ac
 ```ts
 test("returns the Homebrew path when the CLI is there", () => {
   // Given
-  mockGetPreferenceValues.mockReturnValue({} as never);
-  mockStatSync.mockReturnValue({ isFile: () => true } as never);
-  mockInstalledAt("/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control");
+  stubMachine({ paths: ["/opt/homebrew/bin/pods-control", "/usr/local/bin/pods-control"] });
 
   // When
   const result = findCliPath();
@@ -38,8 +36,8 @@ For an async failure, keep the promise in When and assert `rejects` in Then. Att
 ## Isolation
 
 - Call shared factories from `src/test/` inside the test (`const cli = installedCliSetup()`), never at module level.
-- Mocks reset after every test (`clearMocks`, `mockReset`, `restoreMocks`), so stub behavior in Given. A bare `vi.fn()` returns `undefined` after a reset. Reset mid-test only between steps of one workflow.
-- A factory that owns a resource (a process, temp directory, or lock file) returns an object with `[Symbol.asyncDispose]` or `[Symbol.dispose]`, and the test declares it with `await using` or `using`. Plain fixtures do not need one.
+- Mocks and stubbed globals reset after every test (`clearMocks`, `mockReset`, `restoreMocks`, `unstubGlobals`), so stub behavior in Given. A bare `vi.fn()` returns `undefined` after a reset. Reset mid-test only between steps of one workflow.
+- A factory that owns a resource (a process, temp directory, lock file, fake timers, or rendered view) returns an object with `[Symbol.asyncDispose]` or `[Symbol.dispose]`, and the test declares it with `await using` or `using`, as with `createSupportDirectory()`, `createFakeCli()`, and `fakeTimers()`. Plain fixtures do not need one.
 - Other cleanup, such as stopping a process between two When steps, uses `try/finally` or `onTestFinished`, registered as soon as you acquire the resource.
 - Await pending installer prompts, Homebrew operations, and child processes before restoring timers or deleting directories, even after a failed assertion. No disposable owns the installer's module-level pending promises, and clearing mocks does not clear them.
 - `setupFiles` may verify mocks or logs, as `src/test/console.ts` does, but must not plant scenario state.
