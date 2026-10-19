@@ -118,6 +118,19 @@ test("skips installation if another command installed the CLI while the alert wa
   expect(launchCommand).not.toHaveBeenCalled();
 });
 
+test("opens setup instead of reporting ready when a CLI older than the minimum version appears", async () => {
+  // Given
+  using timers = fakeTimers();
+  stubHomebrewInstall();
+  vi.mocked(detectCliSetup).mockResolvedValue(outdatedCliSetup());
+  // When
+  await promptForCliInstallation();
+  // Then
+  expect(launchCommand).toHaveBeenCalledWith({ name: "manage-cli", type: "userInitiated" });
+  expect(confirmAlert).not.toHaveBeenCalled();
+  expect(showToast).not.toHaveBeenCalled();
+});
+
 test("does not install after prerequisites change during confirmation", async () => {
   // Given
   using timers = fakeTimers();
