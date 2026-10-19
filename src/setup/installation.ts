@@ -62,7 +62,6 @@ async function performInstallation(operation: CliOperation): Promise<CliSetup> {
       await (operation === "install" ? installCliWithBrew() : updateCliWithBrew());
       return detectCliSetup();
     });
-    // state "update" also covers a Homebrew CLI below MIN_CLI_VERSION.
     if (after.state !== "update" || after.meetsMinimum !== true) {
       throw new Error("Homebrew finished, but the CLI is not ready to use. Open CLI Setup to check the installation.");
     }
@@ -107,7 +106,6 @@ async function offerInstallation(): Promise<void> {
     await openCliSetup();
     return;
   }
-  // A CLI below MIN_CLI_VERSION falls through to setup, which explains the update.
   if (setup.cliPath && setup.meetsMinimum === true) {
     await showToast({ style: Toast.Style.Success, title: "pods-control CLI ready", message: READY_MESSAGE });
     return;
