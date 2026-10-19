@@ -66,7 +66,6 @@ export class ToastManager {
     titleOverride?: string;
     titleSuffix?: string;
     error?: unknown;
-    /** Copy Error text when it should hold more than the toast message. */
     copyText?: string;
     action?: Toast.ActionOptions;
   } = {}): Promise<ToastManager> {

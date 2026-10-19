@@ -56,7 +56,6 @@ export class CliError extends Error {
   readonly code: CliErrorCode;
   readonly payload: CliPayload | null;
   readonly diagnostics: CliDiagnostics | null;
-  /** Text for Copy Error. It can include diagnostics that are too long for the toast message. */
   readonly details: string;
 
   constructor(

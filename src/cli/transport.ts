@@ -173,7 +173,6 @@ export async function runCli(args: string[]): Promise<CliPayload> {
       if (code === "unknown") {
         throw new CliError(code, payload, unknownTokenMessage(payload.error, diagnostics), diagnostics);
       }
-      // Keep the toast message short; Copy Error gets the diagnostics.
       const message = ERROR_MESSAGES[code];
       throw new CliError(code, payload, message, diagnostics, withDiagnostics(message, diagnostics));
     }
