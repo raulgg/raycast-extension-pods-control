@@ -9,6 +9,8 @@ import type { CliPayload } from "./types";
  * so a slow device settle never surfaces as a spurious timeout.
  */
 const CLI_TIMEOUT_MS = 15000;
+/** How long a timed-out CLI gets to exit after SIGTERM before SIGKILL. */
+const CLI_KILL_GRACE_MS = 2000;
 const CLI_MAX_BUFFER_BYTES = 64 * 1024;
 const CLI_DIAGNOSTIC_LIMIT = 4096;
 const CLI_TOKEN_LIMIT = 80;
@@ -35,11 +37,13 @@ function execFileAsync(file: string, args: string[], options: ExecFileOptions): 
     let settled = false;
     let timedOut = false;
     let timeoutTimer: ReturnType<typeof setTimeout> | undefined;
+    let killTimer: ReturnType<typeof setTimeout> | undefined;
 
     const finish = (error: ExecError | null, stdout: unknown, stderr: unknown) => {
       if (settled) return;
       settled = true;
       if (timeoutTimer) clearTimeout(timeoutTimer);
+      if (killTimer) clearTimeout(killTimer);
       resolve({ stdout: outputString(stdout), stderr: outputString(stderr), error, timedOut });
     };
 
@@ -51,11 +55,15 @@ function execFileAsync(file: string, args: string[], options: ExecFileOptions): 
 
       // Own the timeout so a helper killed by an external signal remains
       // distinguishable from a timeout. Node's `execFile` timeout only reports
-      // both cases as `killed`.
+      // both cases as `killed`. The callback only runs once the child exits, so
+      // a child that ignores SIGTERM gets SIGKILL after a grace period.
       if (!settled && typeof timeout === "number" && timeout > 0) {
         timeoutTimer = setTimeout(() => {
           timedOut = true;
           child?.kill("SIGTERM");
+          killTimer = setTimeout(() => {
+            if (!settled) child?.kill("SIGKILL");
+          }, CLI_KILL_GRACE_MS);
         }, timeout);
       }
     } catch (error) {
