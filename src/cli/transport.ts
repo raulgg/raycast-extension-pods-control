@@ -176,8 +176,11 @@ export async function runCli(args: string[]): Promise<CliPayload> {
     }
     if (payload?.result === "error") {
       const code = toErrorCode(payload.error);
-      const message = code === "unknown" ? unknownTokenMessage(payload.error, diagnostics) : ERROR_MESSAGES[code];
-      throw new CliError(code, payload, message, diagnostics);
+      if (code === "unknown") {
+        throw new CliError(code, payload, unknownTokenMessage(payload.error, diagnostics), diagnostics);
+      }
+      const message = ERROR_MESSAGES[code];
+      throw new CliError(code, payload, message, diagnostics, withDiagnostics(message, diagnostics));
     }
 
     // With no response at all there is no error token to classify. The exit
