@@ -74,7 +74,6 @@ export default function Command() {
     if (!brewInProgress) return;
     let active = true;
     let timer: ReturnType<typeof setTimeout>;
-    // Detection runs slow Homebrew queries, so wait for one check to settle before scheduling the next.
     function scheduleCheck() {
       timer = setTimeout(() => {
         void detectCliSetup()
