@@ -101,7 +101,7 @@ export async function runCycleListeningModeCommand(): Promise<void> {
         });
         return;
       }
-      await showCliFailure(toast, error, { offRequested: enabledModes.includes("off") });
+      await showCliFailure(toast, error, { offRequested: false });
     }
   };
 

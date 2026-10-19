@@ -368,15 +368,23 @@ test("publishes the confirmed state and offers command preferences when cycling 
   });
 });
 
-test("resets the subtitle when cycling fails without a confirmed mode", async () => {
+test("shows the general failure when cycling with Off enabled fails without a confirmed mode", async () => {
   // Given
-  stubControlWorkflow();
-  vi.mocked(PodsControlCli.cycleListeningMode).mockRejectedValue(new CliError("no-op"));
+  const toast = stubControlWorkflow();
+  mockGetPreferenceValues.mockReturnValue({
+    cycleOff: true,
+    cycleTransparency: true,
+    cycleAdaptive: false,
+    cycleAnc: true,
+  } as never);
+  const error = new CliError("no-op");
+  vi.mocked(PodsControlCli.cycleListeningMode).mockRejectedValue(error);
   // When
   await runCycleListeningModeCommand();
   // Then
   expect(mockPublishCommandSubtitle).not.toHaveBeenCalled();
   expect(mockResetCommandSubtitle).toHaveBeenCalledOnce();
+  expect(toast.setToFailure).toHaveBeenCalledExactlyOnceWith({ error });
 });
 
 test("publishes the confirmed state after toggling", async () => {
