@@ -56,18 +56,22 @@ export class CliError extends Error {
   readonly code: CliErrorCode;
   readonly payload: CliPayload | null;
   readonly diagnostics: CliDiagnostics | null;
+  /** Text for Copy Error. It can include diagnostics that are too long for the toast message. */
+  readonly details: string;
 
   constructor(
     code: CliErrorCode,
     payload: CliPayload | null = null,
     messageOverride?: string,
     diagnostics: CliDiagnostics | null = null,
+    details?: string,
   ) {
     super(messageOverride ?? ERROR_MESSAGES[code]);
     this.name = "CliError";
     this.code = code;
     this.payload = payload;
     this.diagnostics = diagnostics;
+    this.details = details ?? this.message;
   }
 }
 
