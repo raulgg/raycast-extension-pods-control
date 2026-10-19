@@ -42,6 +42,7 @@ async function performInstallation(operation: CliOperation): Promise<CliSetup> {
     const before = await detectCliSetup();
     // Installation may have finished elsewhere while the confirmation was open.
     if (operation === "install" && before.cliPath) {
+      requireCompatibleCli(before, "The CLI is already installed");
       await showToast({ style: Toast.Style.Success, title: "pods-control CLI ready", message: READY_MESSAGE });
       return before;
     }
@@ -60,6 +61,7 @@ async function performInstallation(operation: CliOperation): Promise<CliSetup> {
     if (after.state !== "update") {
       throw new Error("Homebrew finished, but the CLI is not ready to use. Open CLI Setup to check the installation.");
     }
+    requireCompatibleCli(after, "Homebrew finished");
     toast.style = Toast.Style.Success;
     toast.title = "pods-control CLI ready";
     toast.message = READY_MESSAGE;
@@ -82,6 +84,16 @@ async function performInstallation(operation: CliOperation): Promise<CliSetup> {
     }
     throw error;
   }
+}
+
+// Detection reports an old Homebrew install as "update", so a ready CLI also needs the minimum CLI version.
+function requireCompatibleCli(setup: CliSetup, context: string): void {
+  if (setup.meetsMinimum === true) return;
+  throw new Error(
+    setup.meetsMinimum === false
+      ? `${context}, but CLI ${setup.installedVersion} is older than the minimum version this extension requires. Open CLI Setup to update it.`
+      : `${context}, but the CLI version could not be read. Open CLI Setup to check the installation.`,
+  );
 }
 
 /** Setup never runs the command that originally required the CLI. */
