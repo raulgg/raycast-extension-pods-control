@@ -9,7 +9,6 @@ import type { CliPayload } from "./types";
  * so a slow device settle never surfaces as a spurious timeout.
  */
 const CLI_TIMEOUT_MS = 15000;
-/** How long a timed-out CLI gets to exit after SIGTERM before SIGKILL. */
 const CLI_KILL_GRACE_MS = 2000;
 const CLI_MAX_BUFFER_BYTES = 64 * 1024;
 const CLI_DIAGNOSTIC_LIMIT = 4096;
@@ -55,8 +54,7 @@ function execFileAsync(file: string, args: string[], options: ExecFileOptions): 
 
       // Own the timeout so a helper killed by an external signal remains
       // distinguishable from a timeout. Node's `execFile` timeout only reports
-      // both cases as `killed`. The callback only runs once the child exits, so
-      // a child that ignores SIGTERM gets SIGKILL after a grace period.
+      // both cases as `killed`.
       if (!settled && typeof timeout === "number" && timeout > 0) {
         timeoutTimer = setTimeout(() => {
           timedOut = true;
