@@ -8,7 +8,6 @@ import { ToastManager } from "../../feedback/toast-manager";
 import { publishCommandSubtitle, resetCommandSubtitle, withSubtitleOperation } from "../../subtitles/coordination";
 import { refreshConversationAwarenessSubtitle, refreshListeningModeSubtitle } from "../../subtitles/feature-subtitles";
 import { expectConsoleError } from "../console";
-import type { CycleCommandPreferences } from "../../controls/preferences";
 
 vi.mock("../../cli/client", async (importOriginal) => ({
   ...(await importOriginal<typeof PodsControlCli>()),
@@ -39,7 +38,7 @@ const mockResetCommandSubtitle = vi.mocked(resetCommandSubtitle);
 
 const mockToastManager = vi.mocked(ToastManager);
 
-const defaultCyclePreferences: CycleCommandPreferences = {
+const defaultCyclePreferences: Preferences.CycleListeningMode = {
   cycleOff: false,
   cycleTransparency: true,
   cycleAdaptive: true,
