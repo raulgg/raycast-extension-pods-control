@@ -334,10 +334,11 @@ test("fails with a setup action when Homebrew leaves a CLI older than the minimu
   // When
   const result = runCliInstallation("update");
   // Then
-  await expect(result).rejects.toThrow("older than the minimum version");
+  await expect(result).rejects.toThrow("CLI is not ready to use");
   expect(updateCliWithBrew).toHaveBeenCalledOnce();
   const toast = await progressToast();
   expect(toast.style).toBe(Toast.Style.Failure);
+  expect(toast.primaryAction.title).toBe("Open pods-control CLI Setup");
   // When
   await toast.primaryAction.onAction(toast);
   // Then
@@ -352,10 +353,15 @@ test("does not report ready when an install finds a CLI older than the minimum v
   // When
   const result = runCliInstallation("install");
   // Then
-  await expect(result).rejects.toThrow("older than the minimum version");
+  await expect(result).rejects.toThrow("CLI is not ready to use");
   expect(installCliWithBrew).not.toHaveBeenCalled();
   expect(showToast).toHaveBeenCalledOnce();
-  expect(showToast).toHaveBeenCalledWith(expect.objectContaining({ style: Toast.Style.Failure }));
+  expect(showToast).toHaveBeenCalledWith(
+    expect.objectContaining({
+      style: Toast.Style.Failure,
+      primaryAction: expect.objectContaining({ title: "Open pods-control CLI Setup" }),
+    }),
+  );
 });
 
 test("shares an in-flight operation across callers", async () => {
