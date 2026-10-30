@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./extension/tsconfig.json",
+  "include": ["tests/**/*", "extension/raycast-env.d.ts"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./extension/src/*"],
+      "@raycast/api": ["./extension/node_modules/@raycast/api"],
+      "@raycast/utils": ["./extension/node_modules/@raycast/utils"]
+    }
+  }
+}

@@ -7,14 +7,14 @@ export default defineConfig({
     mockReset: true,
     restoreMocks: true,
     unstubGlobals: true,
-    setupFiles: ["./src/test/console.ts"],
+    setupFiles: ["./tests/console.ts"],
     projects: [
       {
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.{ts,tsx}"],
-          exclude: ["src/test/integration/**"],
+          include: ["tests/**/*.test.{ts,tsx}"],
+          exclude: ["tests/integration/**"],
           environment: "node",
         },
       },
@@ -22,7 +22,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "integration",
-          include: ["src/test/integration/**/*.{integration,macos}.test.ts"],
+          include: ["tests/integration/**/*.{integration,macos}.test.ts"],
           environment: "node",
         },
       },
@@ -30,15 +30,17 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["node_modules/**", "src/test/**", "**/*.test.{ts,tsx}", "**/*.d.ts", "**/*.config.*"],
+      include: ["extension/src/**/*.{ts,tsx}"],
+      exclude: ["**/node_modules/**", "**/*.d.ts"],
     },
   },
   resolve: {
+    // react-dom installs at the root, so production code must share the root copy of React.
+    dedupe: ["react"],
     alias: {
-      "@": resolve(import.meta.dirname, "./src"),
-      "@raycast/api": resolve(import.meta.dirname, "./src/test/mocks/raycast-api-mock.ts"),
-      "@raycast/utils": resolve(import.meta.dirname, "./src/test/mocks/raycast-utils-mock.ts"),
+      "@": resolve(import.meta.dirname, "./extension/src"),
+      "@raycast/api": resolve(import.meta.dirname, "./tests/mocks/raycast-api-mock.ts"),
+      "@raycast/utils": resolve(import.meta.dirname, "./tests/mocks/raycast-utils-mock.ts"),
     },
   },
 });

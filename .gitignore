@@ -1,0 +1,13 @@
+# dependencies
+/node_modules
+
+# test output
+/coverage
+
+# local working notes and editor state (not part of the extension)
+/plans/
+.claude/
+.cursor/
+
+# misc
+.DS_Store
