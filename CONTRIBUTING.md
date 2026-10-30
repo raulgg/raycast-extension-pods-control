@@ -34,20 +34,27 @@ You are not required to open your pull request in the Pods Control Raycast exten
 
 **Directly in the Raycast extensions repository.** Follow Raycast's [Contribute to an Extension](https://developers.raycast.com/basics/contribute-to-an-extension) guide: use the **Fork Extension** action in Raycast (or a [sparse checkout](https://developers.raycast.com/information/developer-tools/forked-extensions), since the Raycast extensions repository is very large), run `npm install && npm run dev` inside `extensions/pods-control`, then open a pull request against `raycast/extensions` `main`. The maintainer is pinged automatically as code owner, reviews it there, and syncs the merged change back into the Pods Control Raycast extension repository. This path gives you full credit: you are the pull request author, which is what Raycast's contributor credits are based on.
 
-**In the Pods Control Raycast extension repository.** Fork [raulgg/raycast-extension-pods-control](https://github.com/raulgg/raycast-extension-pods-control), branch from `main`, run `npm ci` and `npm run dev` from the repository root. After review and merge, the maintainer publishes the change to the Raycast extensions repository. Because Raycast's publish tooling opens that pull request from the maintainer's account, your credit is preserved in the commit: you are recorded as the commit author, or as co-author (`Co-authored-by:`) when several people contributed, so the change shows up on your GitHub profile and in the history of the Raycast extensions repository. Raycast's own contributor credits, however, go to whoever opens the pull request in the Raycast extensions repository. If that matters to you, use the direct path above, or run `npm run publish` from your own clone of the Pods Control Raycast extension repository once your change is merged there; that opens the Raycast pull request under your account.
+**In the Pods Control Raycast extension repository.** Fork [raulgg/raycast-extension-pods-control](https://github.com/raulgg/raycast-extension-pods-control), branch from `main`, run `npm run setup` and `npm run dev` from the repository root. The extension lives in `extension/`; tests, test tooling, and contributor docs stay at the root. After review and merge, the maintainer publishes the change to the Raycast extensions repository. Because Raycast's publish tooling opens that pull request from the maintainer's account, your credit is preserved in the commit: you are recorded as the commit author, or as co-author (`Co-authored-by:`) when several people contributed, so the change shows up on your GitHub profile and in the history of the Raycast extensions repository. Raycast's own contributor credits, however, go to whoever opens the pull request in the Raycast extensions repository. If that matters to you, use the direct path above, or run `npm run publish` from `extension/` in your own clone of the Pods Control Raycast extension repository once your change is merged there; that opens the Raycast pull request under your account.
 
 In both repositories:
 
 - `npm run dev` loads the Pods Control Raycast extension into Raycast from the directory you run it in and reloads on changes. You need macOS, Raycast, and the [pods-control CLI](https://github.com/raulgg/pods-control) installed to exercise the commands end to end.
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) for the module map, dependency rules, and the behavior contracts a change must preserve, and [TESTING.md](TESTING.md) for the test projects, conventions, and what each suite can prove. Both files ship alongside this one in either repository.
-- Update [CHANGELOG.md](CHANGELOG.md) with a `## [Title] - {PR_MERGE_DATE}` entry. Raycast fills in the date on release.
-- Add your Raycast Store handle to `contributors` in `package.json`. This is the credit shown on the Store page, and it makes you a code owner for future changes.
+- Read [ARCHITECTURE.md](ARCHITECTURE.md) for the module map, dependency rules, and the behavior contracts a change must preserve, and [TESTING.md](TESTING.md) for the test projects, conventions, and what each suite can prove. Both files live only in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control).
+- Update [CHANGELOG.md](extension/CHANGELOG.md) with a `## [Title] - {PR_MERGE_DATE}` entry. Raycast fills in the date on release.
+- Add your Raycast Store handle to `contributors` in `extension/package.json` (`package.json` in the Raycast extensions repository). This is the credit shown on the Store page, and it makes you a code owner for future changes.
 - Say what you tested on real hardware (AirPods or Beats model, macOS version, CLI version). Automated tests stub Raycast, the CLI, and Homebrew, so they cannot prove device behavior.
-- Run the checks before opening the pull request:
+- Run the checks before opening the pull request. In the Pods Control Raycast extension repository, from the root:
 
 ```sh
+npm run build
 npm test
 npm run type-check
+npm run lint
+```
+
+  The Raycast extensions repository has no tests, so run only these inside `extensions/pods-control`:
+
+```sh
 npm run lint
 npm run build
 ```
@@ -58,8 +65,8 @@ Commit messages use a light conventional style (`fix:`, `feat:`, `docs:`, `refac
 
 For the maintainer, and for anyone curious why both paths are safe.
 
-- **From the Raycast extensions repository to the Pods Control Raycast extension repository.** When a pull request touching `extensions/pods-control` merges in `raycast/extensions`, the maintainer runs `npx @raycast/api@latest pull-contributions` on `main` of the Pods Control Raycast extension repository. It brings the upstream changes in as a single `Pull contributions` commit; conflicts are resolved with `git add` and `git merge --continue`. If the CLI cannot fast-forward, the fallback is `git format-patch -1 <merge-commit> -- extensions/pods-control` from a sparse checkout of `raycast/extensions`, applied at the root of the Pods Control Raycast extension repository with `git am -p3`.
-- **From the Pods Control Raycast extension repository to the Raycast extensions repository.** The maintainer runs `pull-contributions` first, then `npm run publish` from the root of the Pods Control Raycast extension repository. That pushes the extension to the `ext/pods-control` branch of the maintainer's fork of `raycast/extensions` and opens or updates the pull request there. Contributors are credited as commit author or co-author, in `CHANGELOG.md`, and in `contributors`.
+- **From the Raycast extensions repository to the Pods Control Raycast extension repository.** When a pull request touching `extensions/pods-control` merges in `raycast/extensions`, the maintainer runs `npx @raycast/api@latest pull-contributions` from `extension/` on `main` of the Pods Control Raycast extension repository. It brings the upstream changes in as a single `Pull contributions` commit; conflicts are resolved with `git add` and `git merge --continue`. If the CLI cannot fast-forward, the fallback is `git format-patch -1 <merge-commit> -- extensions/pods-control` from a sparse checkout of `raycast/extensions`, applied at the root of the Pods Control Raycast extension repository with `git am -p3 --directory=extension`.
+- **From the Pods Control Raycast extension repository to the Raycast extensions repository.** The maintainer runs `pull-contributions` first, then `npm run publish`, both from `extension/` in the Pods Control Raycast extension repository. That pushes the extension to the `ext/pods-control` branch of the maintainer's fork of `raycast/extensions` and opens or updates the pull request there. Contributors are credited as commit author or co-author, in `CHANGELOG.md`, and in `contributors`.
 - Automating this (mirroring pull requests merged in the Pods Control Raycast extension repository to `raycast/extensions` with the contributor as commit author) is on the list to research. Until then it is a manual step, so there can be a short delay between a merge in the Pods Control Raycast extension repository and the Store release.
 
 ## Ground rules

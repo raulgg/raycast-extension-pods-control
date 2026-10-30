@@ -16,4 +16,8 @@ Read these before changing the matching area:
 - [ARCHITECTURE.md](ARCHITECTURE.md): where code lives, dependency rules, and behavior contracts.
 - [TESTING.md](TESTING.md): test conventions and the commands to run before you finish.
 - [CONTRIBUTING.md](CONTRIBUTING.md): whether a change belongs in this extension or in the pods-control CLI.
-- [README.md](README.md): what users read. Keep it in sync with user-facing changes.
+- [extension/README.md](extension/README.md): what users read. Keep it in sync with user-facing changes.
+
+## Layout
+
+`extension/` holds only what ships to the Raycast Store. Tests, test tooling, and contributor docs stay at the repository root. Run `npm run publish` and `pull-contributions` from `extension/`.
