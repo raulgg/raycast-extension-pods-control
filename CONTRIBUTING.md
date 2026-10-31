@@ -53,6 +53,8 @@ npm run lint
 npm run format:check
 ```
 
+The Quality workflow runs the same checks on your pull request.
+
 The Raycast extensions repository has no tests, so run only these inside `extensions/pods-control`:
 
 ```sh
