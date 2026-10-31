@@ -13,5 +13,4 @@
 - [ ] Test for the change (file)
 - [ ] Ran the commands in Raycast with `npm run dev`
 - [ ] Tried on real hardware (AirPods or Beats model, macOS version, CLI version)
-- [ ] `extension/README.md` updated, when users would notice the change
 - [ ] `extension/CHANGELOG.md` entry, when users would notice the change
