@@ -60,7 +60,7 @@ Raycast metadata updates apply in the executing command's context. Set commands 
 
 ## Dependency rules
 
-ESLint enforces these boundaries for production code. Keep `eslint.config.js` in sync with this list.
+ESLint enforces these boundaries for production code. Keep `extension/eslint.config.js` in sync with this list.
 
 - Entrypoints route user and background launches. They may depend on feature modules; feature modules never import entrypoints.
 - `commands/` owns command identifiers and launch payload validation. It depends only on `features/`.

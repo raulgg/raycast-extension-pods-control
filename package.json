@@ -15,7 +15,9 @@
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
     "type-check": "tsc --noEmit && npm --prefix extension run type-check",
-    "lint": "eslint --config eslint.config.js tests extension/src && npm --prefix extension run lint"
+    "prettier": "prettier tests prettier.config.js eslint.config.js package.json tsconfig.json vitest.config.ts extension/prettier.config.js extension/eslint.config.js extension/package.json extension/tsconfig.json",
+    "lint": "eslint --config eslint.config.js tests extension/src && npm run prettier -- --check && npm --prefix extension run lint",
+    "lint:fix": "eslint --config eslint.config.js --fix tests extension/src && npm run prettier -- --write && npm --prefix extension run lint:fix"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

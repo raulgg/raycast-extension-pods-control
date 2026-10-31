@@ -7,7 +7,7 @@ The Pods Control Raycast extension lives in two places:
 - **The Pods Control Raycast extension repository**, [raulgg/raycast-extension-pods-control](https://github.com/raulgg/raycast-extension-pods-control). This is where the Pods Control Raycast extension is developed and where discussions happen.
 - **The Raycast extensions repository**, [raycast/extensions](https://github.com/raycast/extensions), under `extensions/pods-control`. This is what the Raycast Store publishes.
 
-The maintainer keeps the two in sync. You may be reading this file from either of them, or from a local copy, so every instruction below names the repository it refers to.
+The maintainer keeps the two in sync. This guide lives only in the Pods Control Raycast extension repository, and every instruction below names the repository it refers to.
 
 ## Where things go
 
@@ -39,7 +39,7 @@ You are not required to open your pull request in the Pods Control Raycast exten
 In both repositories:
 
 - `npm run dev` loads the Pods Control Raycast extension into Raycast from the directory you run it in and reloads on changes. You need macOS, Raycast, and the [pods-control CLI](https://github.com/raulgg/pods-control) installed to exercise the commands end to end.
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) for the module map, dependency rules, and the behavior contracts a change must preserve, and [TESTING.md](TESTING.md) for the test projects, conventions, and what each suite can prove. Both files live only in the [Pods Control Raycast extension repository](https://github.com/raulgg/raycast-extension-pods-control).
+- Read [ARCHITECTURE.md](ARCHITECTURE.md) for the module map, dependency rules, and the behavior contracts a change must preserve, and [TESTING.md](TESTING.md) for the test projects, conventions, and what each suite can prove.
 - Update [CHANGELOG.md](extension/CHANGELOG.md) with a `## [Title] - {PR_MERGE_DATE}` entry. Raycast fills in the date on release.
 - Add your Raycast Store handle to `contributors` in `extension/package.json` (`package.json` in the Raycast extensions repository). This is the credit shown on the Store page, and it makes you a code owner for future changes.
 - Say what you tested on real hardware (AirPods or Beats model, macOS version, CLI version). Automated tests stub Raycast, the CLI, and Homebrew, so they cannot prove device behavior.

@@ -8,7 +8,7 @@ Please [open an issue](https://github.com/raulgg/raycast-extension-pods-control/
 
 You can send a change in either repository:
 
-- **In the Pods Control Raycast extension repository.** Use this for anything beyond a small fix. The automated tests only run there.
+- **In the Pods Control Raycast extension repository.** The automated tests only run there, so a larger change is easier to check there.
 - **In the Raycast extensions repository.** Follow Raycast's [Contribute to an Extension](https://developers.raycast.com/basics/contribute-to-an-extension) guide. Run `npm install && npm run dev` in this folder, then open a pull request against `raycast/extensions`.
 
 For a pull request in the Raycast extensions repository:
