@@ -90,8 +90,11 @@ npm run build
 npm test
 npm run type-check
 npm run lint
+npm run format:check
 ```
 
-`npm run lint` runs ESLint and Prettier across `tests/` and `extension/`. `npm run lint:fix` fixes what it can.
+`npm run lint` runs ESLint across `tests/` and `extension/src/`, then `ray lint`, which also checks the extension's metadata and formatting. `npm run lint:fix` fixes what it can.
+
+`npm run format:check` runs Prettier across the repository. `npm run format` fixes what it finds.
 
 After isolation changes, also run `npx --no-install vitest run --sequence.shuffle --sequence.seed <n>` and record the seed.
