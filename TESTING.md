@@ -97,6 +97,6 @@ npm run format:check
 
 `npm run format:check` runs Prettier across the repository. `npm run format` fixes what it finds.
 
-The Quality workflow runs these checks on every pull request. In a stack, `integration-tests` runs only on the bottom and top pull requests and reports Success on the others. Add the `stack-ci:run` label to run it on a middle one.
+The Quality workflow runs these checks on every pull request. In a stack, `integration-tests` runs only on the bottom and top pull requests and shows as skipped on the others. Add the `stack-ci:run` label to run it on a middle one.
 
 After isolation changes, also run `npx --no-install vitest run --sequence.shuffle --sequence.seed <n>` and record the seed.
