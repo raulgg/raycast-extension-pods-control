@@ -50,6 +50,7 @@ npm run build
 npm test
 npm run type-check
 npm run lint
+npm run format:check
 ```
 
 The Raycast extensions repository has no tests, so run only these inside `extensions/pods-control`:

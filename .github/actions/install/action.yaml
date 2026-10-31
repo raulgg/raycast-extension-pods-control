@@ -1,0 +1,18 @@
+name: Install
+description: Set up Node and install the root and extension dependencies
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v7
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+        cache-dependency-path: |
+          package-lock.json
+          extension/package-lock.json
+    # The root postinstall uses npm install, which would repair a stale extension lockfile.
+    - run: npm ci --ignore-scripts
+      shell: bash
+    - run: npm ci --prefix extension
+      shell: bash
