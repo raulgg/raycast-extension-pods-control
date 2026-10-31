@@ -6,6 +6,8 @@
     "setup": "npm ci && npm ci --prefix extension",
     "dev": "npm --prefix extension run dev",
     "build": "npm --prefix extension run build",
+    "publish": "npm --prefix extension run publish --",
+    "pull-contributions": "cd extension && npx @raycast/api@latest pull-contributions",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
