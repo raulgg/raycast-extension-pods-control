@@ -68,9 +68,9 @@ Logs are part of the contract. Any `console.error` or `console.warn` you have no
 | Unit        | `tests/**/*.test.ts`, `tests/**/*.test.tsx`, outside `tests/integration/`            | One module's logic or view, with Raycast, the CLI, and the OS stubbed. | The claim needs a real process or lock. |
 | Integration | `tests/integration/**/*.integration.test.ts`, `tests/integration/**/*.macos.test.ts` | Composed modules talking to fake CLI and supervisor processes.         | A unit test can falsify the claim.      |
 
-The file name picks how a test runs:
+How a test runs:
 
-- `.test.ts` runs in Node. `.test.tsx` runs in happy-dom so it can render views; it still cannot prove native Raycast rendering or HUD fallback.
+- Every test runs in Node by default. To render a view, name the file `.test.tsx` and start it with `// @vitest-environment happy-dom`. The file name alone does not switch the environment. These tests still cannot prove native Raycast rendering or HUD fallback.
 - `.macos.test.ts` is for integration tests that need real `lockf`, file descriptors, or revision files. Every case uses `test.skipIf(process.platform !== "darwin")`. Do not stub `lockf`, cut timeouts, or turn off file isolation to speed it up.
 
 Real devices, native Raycast rendering, HUD fallback, and a real `brew install` are checked manually.
