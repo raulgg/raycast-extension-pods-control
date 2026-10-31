@@ -22,7 +22,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: "integration",
-          include: ["tests/integration/**/*.{integration,macos}.test.ts"],
+          include: ["tests/integration/**/*.test.{ts,tsx}"],
           environment: "node",
         },
       },
