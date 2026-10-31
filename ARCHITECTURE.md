@@ -1,26 +1,28 @@
 # Architecture
 
-Pods Control has eight Raycast command entrypoints in `src/`. Keep those filenames and their manifest identifiers stable (`pods-status` and `manage-cli` among them). The folders below group the implementation by responsibility; none of them changes the CLI's contract. The wrapped CLI is `pods-control` from `raulgg/tap/pods-control`, minimum `v0.5.0`.
+`extension/` holds only what ships to the Raycast Store, plus a short `CONTRIBUTING.md` that points to the full guide. Tests, test tooling, and the other contributor docs stay at the repository root, because Raycast's publish tooling copies the folder it runs in.
+
+Pods Control has eight Raycast command entrypoints in `extension/src/`. Keep those filenames and their manifest identifiers stable (`pods-status` and `manage-cli` among them). The folders below group the implementation by responsibility; none of them changes the CLI's contract. The wrapped CLI is `pods-control` from `raulgg/tap/pods-control`, minimum `v0.5.0`.
 
 ## Finding the code
 
-| Task                                               | Start here                                                                                               |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Follow a set command                               | `src/set-*.ts` → `controls/delegate-listening-mode.ts` → Cycle entrypoint → `controls/listening-mode.ts` |
-| Change cycling or Conversation Awareness logic     | `src/controls/`                                                                                          |
-| Understand a background launch payload             | `src/commands/launch-context.ts`                                                                         |
-| Follow combined status reads and subtitle dispatch | `src/status/refresh.ts`                                                                                  |
-| Understand subtitle ordering across processes      | `src/subtitles/coordination.ts`                                                                          |
-| Inspect CLI arguments and confirmed-state handling | `src/cli/client.ts`                                                                                      |
-| Inspect CLI version comparison                     | `src/cli/version.ts`                                                                                     |
-| Inspect executable discovery and search paths      | `src/cli/discovery.ts`, `src/cli/preferences.ts`                                                         |
-| Inspect JSON validation or error classification    | `src/cli/protocol.ts`, `src/cli/errors.ts`, `src/cli/transport.ts`                                       |
-| Change CLI setup screens or actions                | `src/setup/screens.ts`, `view.tsx`, `lifecycle.ts`                                                       |
-| Understand setup detection or installation         | `src/setup/detection.ts`, `developer-tools.ts`, `latest-release.ts`, `installation.ts`                   |
-| Understand the pre-command CLI check               | `src/setup/guard.ts`, `navigation.ts`                                                                    |
-| Understand Homebrew termination and locking        | `src/homebrew/commands.ts`, `lock.ts`, `process-lifetime.ts`                                             |
-| Change state labels or symbols                     | `src/features/presentation.ts`                                                                           |
-| Change control toasts or error actions             | `src/feedback/`                                                                                          |
+| Task                                               | Start here                                                                                                         |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Follow a set command                               | `extension/src/set-*.ts` → `controls/delegate-listening-mode.ts` → Cycle entrypoint → `controls/listening-mode.ts` |
+| Change cycling or Conversation Awareness logic     | `extension/src/controls/`                                                                                          |
+| Understand a background launch payload             | `extension/src/commands/launch-context.ts`                                                                         |
+| Follow combined status reads and subtitle dispatch | `extension/src/status/refresh.ts`                                                                                  |
+| Understand subtitle ordering across processes      | `extension/src/subtitles/coordination.ts`                                                                          |
+| Inspect CLI arguments and confirmed-state handling | `extension/src/cli/client.ts`                                                                                      |
+| Inspect CLI version comparison                     | `extension/src/cli/version.ts`                                                                                     |
+| Inspect executable discovery and search paths      | `extension/src/cli/discovery.ts`, `extension/src/cli/preferences.ts`                                               |
+| Inspect JSON validation or error classification    | `extension/src/cli/protocol.ts`, `extension/src/cli/errors.ts`, `extension/src/cli/transport.ts`                   |
+| Change CLI setup screens or actions                | `extension/src/setup/screens.ts`, `view.tsx`, `lifecycle.ts`                                                       |
+| Understand setup detection or installation         | `extension/src/setup/detection.ts`, `developer-tools.ts`, `latest-release.ts`, `installation.ts`                   |
+| Understand the pre-command CLI check               | `extension/src/setup/guard.ts`, `navigation.ts`                                                                    |
+| Understand Homebrew termination and locking        | `extension/src/homebrew/commands.ts`, `lock.ts`, `process-lifetime.ts`                                             |
+| Change state labels or symbols                     | `extension/src/features/presentation.ts`                                                                           |
+| Change control toasts or error actions             | `extension/src/feedback/`                                                                                          |
 
 ## Module map
 
@@ -58,7 +60,7 @@ Raycast metadata updates apply in the executing command's context. Set commands 
 
 ## Dependency rules
 
-ESLint enforces these boundaries for production code. Keep `eslint.config.js` in sync with this list.
+ESLint enforces these boundaries for production code. Keep `extension/eslint.config.js` in sync with this list.
 
 - Entrypoints route user and background launches. They may depend on feature modules; feature modules never import entrypoints.
 - `commands/` owns command identifiers and launch payload validation. It depends only on `features/`.
@@ -68,7 +70,7 @@ ESLint enforces these boundaries for production code. Keep `eslint.config.js` in
 - `controls/` and `status/` coordinate their own workflows and talk to each other only through Raycast launches.
 - `setup/` owns CLI detection, install, update, and recovery. `homebrew/` owns command execution, OS locks, and supervisor cleanup.
 - `feedback/` owns shared Raycast feedback primitives and has no feature dependencies.
-- Production modules never import tests or test helpers. Unit tests sit beside their modules; composed workflows, real-process tests, and macOS lock tests live in `src/test/integration/`.
+- Production modules never import tests or test helpers. Unit tests live in `tests/`, in the same subfolders as their modules; composed workflows, real-process tests, and macOS lock tests live in `tests/integration/`.
 
 Use direct imports. Avoid barrel files and generic workflow abstractions that hide command-specific behavior.
 
