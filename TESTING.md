@@ -83,7 +83,7 @@ npx --no-install vitest run tests/cli/client.test.ts
 
 ## Before you finish
 
-Run these from the repository root, after `npm run setup`. The build comes first because it generates `extension/raycast-env.d.ts`, which the type check needs.
+Run these from the repository root, after `npm install`. The build comes first because it generates `extension/raycast-env.d.ts`, which the type check needs.
 
 ```sh
 npm run build
