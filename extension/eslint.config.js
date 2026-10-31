@@ -4,7 +4,7 @@ import raycastConfig from "@raycast/eslint-config";
 import { defineConfig } from "eslint/config";
 import importX from "eslint-plugin-import-x";
 
-// Keep these folder dependencies in sync with ARCHITECTURE.md.
+// Keep these folder dependencies in sync with https://github.com/raulgg/raycast-extension-pods-control/blob/main/ARCHITECTURE.md.
 const dependencies = {
   features: [],
   commands: ["features"],
