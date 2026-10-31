@@ -91,7 +91,7 @@ npm test
 npm run type-check
 npm run lint
 npx --no-install prettier --check tests prettier.config.js eslint.config.js package.json tsconfig.json vitest.config.ts
-npx --no-install prettier --check extension/.prettierrc extension/src extension/eslint.config.js extension/package.json extension/tsconfig.json
+npx --no-install prettier --check extension/prettier.config.js extension/src extension/eslint.config.js extension/package.json extension/tsconfig.json
 ```
 
 After isolation changes, also run `npx --no-install vitest run --sequence.shuffle --sequence.seed <n>` and record the seed.
