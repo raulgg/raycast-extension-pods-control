@@ -6,6 +6,12 @@
 
 <!-- The problem this solves. -->
 
-## Testing
+## Verification
 
-<!-- What you ran, and what you tested on real hardware: AirPods or Beats model, macOS version, CLI version. -->
+<!-- The Quality workflow runs the automated checks. Tick what you did and remove what doesn't apply. -->
+
+- [ ] Test for the change (file)
+- [ ] Ran the commands in Raycast with `npm run dev`
+- [ ] Tried on real hardware (AirPods or Beats model, macOS version, CLI version)
+- [ ] `extension/README.md` updated, when users would notice the change
+- [ ] `extension/CHANGELOG.md` entry, when users would notice the change
