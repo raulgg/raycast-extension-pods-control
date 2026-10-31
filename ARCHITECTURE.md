@@ -1,6 +1,6 @@
 # Architecture
 
-`extension/` holds only what ships to the Raycast Store. Tests, test tooling, and contributor docs stay at the repository root, because Raycast's publish tooling copies the folder it runs in.
+`extension/` holds only what ships to the Raycast Store, plus a short `CONTRIBUTING.md` that points to the full guide. Tests, test tooling, and the other contributor docs stay at the repository root, because Raycast's publish tooling copies the folder it runs in.
 
 Pods Control has eight Raycast command entrypoints in `extension/src/`. Keep those filenames and their manifest identifiers stable (`pods-status` and `manage-cli` among them). The folders below group the implementation by responsibility; none of them changes the CLI's contract. The wrapped CLI is `pods-control` from `raulgg/tap/pods-control`, minimum `v0.5.0`.
 

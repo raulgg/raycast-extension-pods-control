@@ -20,4 +20,4 @@ Read these before changing the matching area:
 
 ## Layout
 
-`extension/` holds only what ships to the Raycast Store. Tests, test tooling, and contributor docs stay at the repository root. Run `npm run publish` and `pull-contributions` from `extension/`.
+`extension/` holds only what ships to the Raycast Store, plus a short `CONTRIBUTING.md` that points to the full guide. Tests, test tooling, and the other contributor docs stay at the repository root. Run `npm run publish` and `pull-contributions` from `extension/`.
