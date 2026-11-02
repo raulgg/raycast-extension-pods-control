@@ -1,6 +1,8 @@
 # Pods Control
 
-Development repository for the Pods Control Raycast extension, which controls AirPods and Beats listening modes and Conversation Awareness from Raycast.
+This repo is where the Pods Control Raycast extension is developed.
 
-- [extension/](extension/) holds what ships to the Raycast Store. Start with its [README](extension/README.md) to use the extension.
-- The repository root holds the tests, test tooling, and contributor docs. See [CONTRIBUTING.md](CONTRIBUTING.md) to change the extension.
+The extension manages listening modes on AirPods and Beats together with Conversation Awareness.
+
+- Content published to the Raycast Store lives in [extension/](extension/). Begin at its [README](extension/README.md) when you intend to use the extension.
+- Tests, test tooling, and contributor docs reside at the repository root. Consult [CONTRIBUTING.md](CONTRIBUTING.md) whenever you modify the extension.
