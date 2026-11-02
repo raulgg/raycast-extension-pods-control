@@ -145,3 +145,13 @@ _Avoid_: required version
 **Latest release**:
 The newest published CLI version, as reported by Homebrew or GitHub.
 _Avoid_: latest version, newest version
+
+## Repositories
+
+**Development repository**:
+The repository `raulgg/raycast-extension-pods-control`, where the extension is developed and tested.
+_Avoid_: Pods Control Raycast extension repository, extension repository, this repository
+
+**Store repository**:
+The repository `raycast/extensions`, which the Raycast Store publishes from.
+_Avoid_: Raycast extensions repository, Raycast's repository, upstream
