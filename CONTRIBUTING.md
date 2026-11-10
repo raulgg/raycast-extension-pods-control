@@ -5,7 +5,7 @@ Thanks for helping improve the Pods Control Raycast extension. This page explain
 The Pods Control Raycast extension lives in two places:
 
 - **The development repository**, [raulgg/raycast-extension-pods-control](https://github.com/raulgg/raycast-extension-pods-control). This is where the Pods Control Raycast extension is developed and where discussions happen.
-- **The Store repository**, [raycast/extensions](https://github.com/raycast/extensions), under `extensions/pods-control`. This is what the Raycast Store publishes.
+- **The Store repository**, [raycast/extensions](https://github.com/raycast/extensions), under [`extensions/pods-control`](https://github.com/raycast/extensions/tree/main/extensions/pods-control). This is what the [Raycast Store](https://www.raycast.com/raulg/pods-control) publishes.
 
 The maintainer keeps the two in sync. This guide lives only in the development repository, and every instruction below names the repository it refers to.
 
@@ -17,8 +17,6 @@ The maintainer keeps the two in sync. This guide lives only in the development r
 | Propose a feature or discuss an idea | Open an issue in the [development repository](https://github.com/raulgg/raycast-extension-pods-control/issues) before writing code                                                                                                                |
 | Submit code                          | Open a pull request in the [development repository](https://github.com/raulgg/raycast-extension-pods-control) **or** directly in the [Store repository](https://github.com/raycast/extensions). Both are fine. See [Sending code](#sending-code). |
 | Report a CLI or hardware problem     | Open an issue in the [pods-control CLI repository](https://github.com/raulgg/pods-control/issues). The Pods Control Raycast extension only runs the CLI.                                                                                          |
-
-> **Status.** The Pods Control Raycast extension is in the [Raycast Store](https://www.raycast.com/raulg/pods-control). Its source in the Store repository is [`extensions/pods-control`](https://github.com/raycast/extensions/tree/main/extensions/pods-control).
 
 ## Discuss ideas first
 
