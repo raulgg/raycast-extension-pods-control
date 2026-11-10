@@ -18,7 +18,7 @@ The maintainer keeps the two in sync. This guide lives only in the development r
 | Submit code                          | Open a pull request in the [development repository](https://github.com/raulgg/raycast-extension-pods-control) **or** directly in the [Store repository](https://github.com/raycast/extensions). Both are fine. See [Sending code](#sending-code). |
 | Report a CLI or hardware problem     | Open an issue in the [pods-control CLI repository](https://github.com/raulgg/pods-control/issues). The Pods Control Raycast extension only runs the CLI.                                                                                          |
 
-> **Status.** The Pods Control Raycast extension is not in the Raycast Store yet, so there is no `extensions/pods-control` directory in the Store repository for now. Until the first release lands, everything goes through the development repository.
+> **Status.** The Pods Control Raycast extension is in the [Raycast Store](https://www.raycast.com/raulg/pods-control). Its source in the Store repository is [`extensions/pods-control`](https://github.com/raycast/extensions/tree/main/extensions/pods-control).
 
 ## Discuss ideas first
 
