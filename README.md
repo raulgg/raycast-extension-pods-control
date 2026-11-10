@@ -5,14 +5,13 @@
 <h1 align="center">Pods Control Raycast Extension</h1>
 
 <p align="center">
-  <a href="https://www.raycast.com/raulg/pods-control"><img alt="Pods Control on Raycast" src="https://img.shields.io/badge/Raycast-Pods%20Control-FF6363?style=flat-square&amp;logo=raycast&amp;logoColor=white"></a>
-  <a href="https://www.raycast.com/raulg/pods-control"><img alt="Pods Control downloads on the Raycast Store" src="https://img.shields.io/raycast/dt/raulg/pods-control?style=flat-square&amp;logo=raycast&amp;logoColor=white&amp;color=FF6363"></a>
+  <a href="https://www.raycast.com/raulg/pods-control"><img alt="Pods Control installs on the Raycast Store" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fwww.raycast.com%2Fapi%2Fv1%2Fextensions%2Fraulg%2Fpods-control&amp;query=%24.download_count&amp;suffix=%20installs&amp;label=Raycast&amp;color=FF6363&amp;logo=raycast&amp;logoColor=white&amp;style=flat-square"></a>
   <a href="https://github.com/raulgg/raycast-extension-pods-control/actions/workflows/quality.yaml"><img alt="Quality workflow status" src="https://img.shields.io/github/actions/workflow/status/raulgg/raycast-extension-pods-control/quality.yaml?branch=main&amp;style=flat-square&amp;label=quality"></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/raulgg/raycast-extension-pods-control?style=flat-square"></a>
 </p>
 
 <p align="center">
-  <a href="https://www.raycast.com/raulg/pods-control"><img alt="Install Pods Control from the Raycast Store" height="48" src="https://www.raycast.com/raulg/pods-control/install_button@2x.png"></a>
+  <a href="https://www.raycast.com/raulg/pods-control"><img alt="Install Pods Control from the Raycast Store" height="64" src="https://www.raycast.com/raulg/pods-control/install_button@2x.png"></a>
 </p>
 
 A Raycast extension that reads and changes the listening mode and Conversation Awareness of the connected AirPods or Beats, and shows the confirmed state in command subtitles.
