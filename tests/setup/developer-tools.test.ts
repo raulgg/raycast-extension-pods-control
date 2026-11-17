@@ -22,7 +22,10 @@ function mockXcodeSelectUnavailable() {
 // Each command succeeds unless `failure` returns an error for it.
 function mockCommands(failure: (file: string, args: readonly string[]) => Error | null = () => null) {
   exec.mockImplementation((file, args, _options, callback) => {
-    if (typeof callback === "function") callback(failure(String(file), Array.isArray(args) ? args : []), "", "");
+    const command = String(file);
+    const error = failure(command, Array.isArray(args) ? args : []);
+    // Node 26's execFile callback requires `cmd` on the error.
+    if (typeof callback === "function") callback(error && Object.assign(error, { cmd: command }), "", "");
     return {} as ReturnType<typeof execFile>;
   });
 }
