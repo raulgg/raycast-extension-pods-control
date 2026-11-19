@@ -1,0 +1,5 @@
+status=0
+lint-staged || status=1
+npm run lint || status=1
+npm run type-check || status=1
+exit "$status"
