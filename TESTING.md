@@ -97,8 +97,6 @@ npm run format:check
 
 `npm run format:check` runs Prettier across the repository. `npm run format` fixes what it finds.
 
-`npm install` also sets up a pre-commit hook. It formats staged files with Prettier, then runs `npm run lint` and `npm run type-check`, and stops the commit if any of them fail. It does not run the tests or the build, so run `npm run build` before your first commit.
-
 The Quality workflow runs these checks on every pull request. In a stack, `integration-tests` runs only on the bottom and top pull requests and shows as skipped on the others. Add the `stack-ci:run` label to run it on a middle one.
 
 After isolation changes, also run `npx --no-install vitest run --sequence.shuffle --sequence.seed <n>` and record the seed.
