@@ -1,7 +1,7 @@
 import { CliError } from "./errors";
 import { runCli } from "./transport";
-import type { CliListeningMode, CliPayload } from "./types";
 import type { ConversationAwarenessState, ListeningModes } from "../features/types";
+import type { CliListeningMode, CliPayload } from "./types";
 
 const CLI_MODE_TOKENS: Record<ListeningModes, CliListeningMode> = {
   off: "off",

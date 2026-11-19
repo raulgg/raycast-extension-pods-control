@@ -6,12 +6,12 @@ import { formatStatusSubtitle } from "../features/presentation";
 import { publishCommandSubtitle, resetCommandSubtitle, withSubtitleSnapshotOperation } from "../subtitles/coordination";
 import { finishToast } from "./feedback";
 import { totalReadFailureIncludes, type StatusRefreshResult } from "./result";
-import type { SubtitleDispatchResult } from "./result";
 import type {
   ConversationAwarenessSubtitleRefreshContext,
   ListeningModeSubtitleRefreshContext,
 } from "../commands/launch-context";
 import type { StatusSnapshot, ConversationAwarenessState, ListeningModes } from "../features/types";
+import type { SubtitleDispatchResult } from "./result";
 
 // Pods Status cannot set another command's subtitle, so it launches Cycle Listening Mode and
 // Toggle Conversation Awareness in the background with the states it read. The revision lets
